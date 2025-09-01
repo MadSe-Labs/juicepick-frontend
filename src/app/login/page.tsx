@@ -1,23 +1,44 @@
 'use client';
 
 import { useState } from 'react';
+import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 
 export default function LoginPage() {
-  const [id, setId] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // 아무 id, password를 입력하면 메인페이지로 라우팅
-    if (id.trim() && password.trim()) {
-      router.push('/main');
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('이메일 또는 비밀번호가 올바르지 않습니다.');
+      } else {
+        // 로그인 성공
+        router.push('/main');
+        router.refresh();
+      }
+    } catch (error) {
+      setError('로그인 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -37,26 +58,48 @@ export default function LoginPage() {
               </p>
             </div>
 
+            {/* Demo Account Info */}
+            <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+              <h3 className='text-sm font-medium text-blue-800 mb-2'>
+                테스트 계정
+              </h3>
+              <div className='text-xs text-blue-700 space-y-1'>
+                <p>• 일반 사용자: test@juicepick.com / 123456</p>
+                <p>• 관리자: admin@juicepick.com / admin123</p>
+                <p>• 간편 테스트: user@example.com / password</p>
+              </div>
+            </div>
+
             {/* Login Form */}
             <div className='bg-white py-8 px-6 shadow rounded-lg'>
               <form className='space-y-6' onSubmit={handleLogin}>
+                {/* Error Message */}
+                {error && (
+                  <div className='bg-red-50 border border-red-200 rounded-md p-3'>
+                    <div className='flex items-center'>
+                      <AlertCircle className='h-4 w-4 text-red-500 mr-2' />
+                      <span className='text-sm text-red-700'>{error}</span>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <label
-                    htmlFor='id'
+                    htmlFor='email'
                     className='block text-sm font-medium text-gray-700'
                   >
-                    아이디
+                    이메일
                   </label>
                   <div className='mt-1'>
                     <input
-                      id='id'
-                      name='id'
-                      type='text'
+                      id='email'
+                      name='email'
+                      type='email'
                       required
-                      value={id}
-                      onChange={(e) => setId(e.target.value)}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className='appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm'
-                      placeholder='아이디를 입력하세요'
+                      placeholder='이메일을 입력하세요'
                     />
                   </div>
                 </div>
@@ -122,9 +165,14 @@ export default function LoginPage() {
                 <div>
                   <button
                     type='submit'
-                    className='group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors'
+                    disabled={isLoading}
+                    className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white transition-colors ${
+                      isLoading
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
+                    }`}
                   >
-                    로그인
+                    {isLoading ? '로그인 중...' : '로그인'}
                   </button>
                 </div>
 
