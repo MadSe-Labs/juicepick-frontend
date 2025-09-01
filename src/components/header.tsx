@@ -2,12 +2,41 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { User, ShoppingCart, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
+import {
+  User,
+  ShoppingCart,
+  Menu,
+  X,
+  LogIn,
+  LogOut,
+  UserCircle,
+} from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { data: session, status } = useSession();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // 외부 클릭 감지로 드롭다운 메뉴 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // 현재 경로에 따른 활성 상태 확인 함수
   const isActive = (path: string) => {
@@ -22,6 +51,10 @@ export default function Header() {
     return isActive(path)
       ? 'text-gray-900 font-medium hover:text-green-500 transition-colors'
       : 'text-gray-600 hover:text-green-500 transition-colors';
+  };
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/main' });
   };
 
   return (
@@ -53,18 +86,87 @@ export default function Header() {
 
           {/* User Actions */}
           <div className='hidden md:flex items-center space-x-4'>
-            <button className='text-gray-600 hover:text-green-500 transition-colors'>
-              <User className='h-5 w-5' />
-            </button>
-            <button className='text-gray-600 hover:text-green-500 transition-colors'>
-              <ShoppingCart className='h-5 w-5' />
-            </button>
-            <Link
-              href='/login'
-              className='px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors'
-            >
-              로그인
-            </Link>
+            {status === 'loading' ? (
+              <div className='text-gray-400'>로딩중...</div>
+            ) : session ? (
+              <>
+                {/* 장바구니 */}
+                <button className='text-gray-600 hover:text-green-500 transition-colors relative cursor-pointer'>
+                  <ShoppingCart className='h-5 w-5' />
+                  <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center'>
+                    0
+                  </span>
+                </button>
+
+                {/* 사용자 메뉴 */}
+                <div className='relative' ref={userMenuRef}>
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className='flex items-center space-x-2 text-gray-700 hover:text-green-500 transition-colors cursor-pointer'
+                  >
+                    <UserCircle className='h-5 w-5' />
+                    <span className='text-sm font-medium'>
+                      {session.user?.name}
+                    </span>
+                  </button>
+
+                  {/* 드롭다운 메뉴 */}
+                  {isUserMenuOpen && (
+                    <div className='absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border'>
+                      <Link
+                        href='/profile'
+                        className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <div className='flex items-center space-x-2'>
+                          <User className='h-4 w-4' />
+                          <span>프로필</span>
+                        </div>
+                      </Link>
+                      <Link
+                        href='/my-orders'
+                        className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <div className='flex items-center space-x-2'>
+                          <ShoppingCart className='h-4 w-4' />
+                          <span>주문 내역</span>
+                        </div>
+                      </Link>
+                      <hr className='my-1' />
+                      <button
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                          handleSignOut();
+                        }}
+                        className='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer'
+                      >
+                        <div className='flex items-center space-x-2'>
+                          <LogOut className='h-4 w-4' />
+                          <span>로그아웃</span>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <Link
+                  href='/login'
+                  className='flex items-center space-x-1 text-gray-600 hover:text-green-500 transition-colors'
+                >
+                  <LogIn className='h-4 w-4' />
+                  <span>로그인</span>
+                </Link>
+                <Link
+                  href='/signup'
+                  className='px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors'
+                >
+                  회원가입
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -112,20 +214,60 @@ export default function Header() {
               >
                 리뷰
               </Link>
-              <div className='flex items-center space-x-4 pt-2'>
-                <button className='text-gray-600 hover:text-green-500 transition-colors'>
-                  <User className='h-5 w-5' />
-                </button>
-                <button className='text-gray-600 hover:text-green-500 transition-colors'>
-                  <ShoppingCart className='h-5 w-5' />
-                </button>
-                <Link
-                  href='/login'
-                  className='px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors'
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  로그인
-                </Link>
+
+              {/* 모바일 사용자 액션 */}
+              <div className='pt-4 border-t border-gray-200'>
+                {session ? (
+                  <div className='space-y-3'>
+                    <div className='flex items-center space-x-3 px-2'>
+                      <UserCircle className='h-6 w-6 text-gray-600' />
+                      <div>
+                        <p className='text-sm font-medium text-gray-900'>
+                          {session.user?.name}
+                        </p>
+                        <p className='text-xs text-gray-500'>
+                          {session.user?.email}
+                        </p>
+                      </div>
+                    </div>
+                    <Link
+                      href='/profile'
+                      className='flex items-center space-x-3 px-2 py-2 text-gray-600 hover:text-green-500 transition-colors'
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <User className='h-5 w-5' />
+                      <span>프로필</span>
+                    </Link>
+                    <button className='flex items-center space-x-3 px-2 py-2 text-gray-600 hover:text-green-500 transition-colors'>
+                      <ShoppingCart className='h-5 w-5' />
+                      <span>장바구니</span>
+                      <span className='bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center ml-auto'>
+                        0
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleSignOut();
+                      }}
+                      className='flex items-center space-x-3 px-2 py-2 text-gray-600 hover:text-red-500 transition-colors w-full text-left'
+                    >
+                      <LogOut className='h-5 w-5' />
+                      <span>로그아웃</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className='space-y-3'>
+                    <Link
+                      href='/login'
+                      className='flex items-center justify-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors'
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <LogIn className='h-4 w-4' />
+                      <span>로그인</span>
+                    </Link>
+                  </div>
+                )}
               </div>
             </nav>
           </div>
