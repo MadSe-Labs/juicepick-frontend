@@ -91,12 +91,15 @@ export default function Header() {
             ) : session ? (
               <>
                 {/* 장바구니 */}
-                <button className='text-gray-600 hover:text-green-500 transition-colors relative cursor-pointer'>
+                <Link
+                  href='/cart'
+                  className='text-gray-600 hover:text-green-500 transition-colors relative cursor-pointer'
+                >
                   <ShoppingCart className='h-5 w-5' />
                   <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center'>
-                    0
+                    4
                   </span>
-                </button>
+                </Link>
 
                 {/* 사용자 메뉴 */}
                 <div className='relative' ref={userMenuRef}>
@@ -238,13 +241,17 @@ export default function Header() {
                       <User className='h-5 w-5' />
                       <span>프로필</span>
                     </Link>
-                    <button className='flex items-center space-x-3 px-2 py-2 text-gray-600 hover:text-green-500 transition-colors'>
+                    <Link
+                      href='/cart'
+                      className='flex items-center space-x-3 px-2 py-2 text-gray-600 hover:text-green-500 transition-colors'
+                      onClick={() => setIsMenuOpen(false)}
+                    >
                       <ShoppingCart className='h-5 w-5' />
                       <span>장바구니</span>
                       <span className='bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center ml-auto'>
-                        0
+                        4
                       </span>
-                    </button>
+                    </Link>
                     <button
                       onClick={() => {
                         setIsMenuOpen(false);
