@@ -13,12 +13,15 @@ import {
   UserCircle,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import { useCartStore } from '@/stores/useCartStore';
 
 export default function Header() {
+  const { data: session, status } = useSession();
+  const { items: cartItems } = useCartStore();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { data: session, status } = useSession();
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // 외부 클릭 감지로 드롭다운 메뉴 닫기
@@ -97,7 +100,7 @@ export default function Header() {
                 >
                   <ShoppingCart className='h-5 w-5' />
                   <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center'>
-                    4
+                    {cartItems.length || 0}
                   </span>
                 </Link>
 

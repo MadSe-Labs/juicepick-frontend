@@ -1,30 +1,6 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-
-// 더미 사용자 데이터 (개발용)
-const dummyUsers = [
-  {
-    id: '1',
-    email: 'test@juicepick.com',
-    password: '123456',
-    name: '테스트 유저',
-    role: 'user',
-  },
-  {
-    id: '2',
-    email: 'admin@juicepick.com',
-    password: 'admin123',
-    name: '관리자',
-    role: 'admin',
-  },
-  {
-    id: '3',
-    email: 'user@example.com',
-    password: 'password',
-    name: '일반 사용자',
-    role: 'user',
-  },
-];
+import { MOCK_USERS } from '@/lib/mockData';
 
 const handler = NextAuth({
   providers: [
@@ -41,7 +17,7 @@ const handler = NextAuth({
 
         // 개발 환경에서는 더미 사용자 사용
         if (process.env.NODE_ENV === 'development') {
-          const user = dummyUsers.find(
+          const user = MOCK_USERS.find(
             (u) =>
               u.email === credentials.email &&
               u.password === credentials.password
