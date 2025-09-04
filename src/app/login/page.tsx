@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn, getSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import Header from '@/components/header';
@@ -15,6 +15,10 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // URL에서 리다이렉트할 페이지 정보 가져오기
+  const from = searchParams.get('from') || '/main';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,8 +35,8 @@ export default function LoginPage() {
       if (result?.error) {
         setError('이메일 또는 비밀번호가 올바르지 않습니다.');
       } else {
-        // 로그인 성공
-        router.push('/main');
+        // 로그인 성공 시 원래 가려던 페이지 또는 메인 페이지로 이동
+        router.push(from);
         router.refresh();
       }
     } catch (error) {
