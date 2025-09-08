@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import {
   User,
@@ -11,6 +11,7 @@ import {
   LogIn,
   LogOut,
   UserCircle,
+  Search,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useCartStore } from '@/stores/useCartStore';
@@ -18,9 +19,11 @@ import { useCartStore } from '@/stores/useCartStore';
 export default function Header() {
   const { data: session, status } = useSession();
   const { items: cartItems } = useCartStore();
+  const router = useRouter();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -40,6 +43,14 @@ export default function Header() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // 검색 처리 함수
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/main?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   // 현재 경로에 따른 활성 상태 확인 함수
   const isActive = (path: string) => {
@@ -70,6 +81,27 @@ export default function Header() {
               액상최저가
             </span>
           </Link>
+
+          {/* Search Bar */}
+          <div className='hidden md:flex flex-1 max-w-lg mx-8'>
+            <form onSubmit={handleSearch} className='w-full'>
+              <div className='relative'>
+                <input
+                  type='text'
+                  placeholder='상품명, 브랜드, 맛을 검색하세요...'
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className='w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent'
+                />
+                <button
+                  type='submit'
+                  className='absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-green-500'
+                >
+                  <Search className='h-5 w-5' />
+                </button>
+              </div>
+            </form>
+          </div>
 
           {/* Desktop Navigation */}
           <nav className='hidden md:flex space-x-8'>

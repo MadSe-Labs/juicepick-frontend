@@ -1,6 +1,8 @@
 'use client';
 
 import { Search, Filter, Bell, ChevronDown } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import Header from '@/components/header';
 import Banner from '@/components/banner';
 import ProductCard from '@/components/product-card';
@@ -10,10 +12,137 @@ import Footer from '@/components/footer';
 import PriceTrendChart from '@/components/price-trend-chart';
 import { useProductStore } from '@/stores/useProductStore';
 import { useCartStore } from '@/stores/useCartStore';
+import type { ProductFilters } from '@/stores/useProductStore';
 
 export default function Home() {
-  const { products, popularProducts, newProducts } = useProductStore();
+  const {
+    products,
+    popularProducts,
+    newProducts,
+    searchProducts,
+    filterProducts,
+  } = useProductStore();
   const { addItem } = useCartStore();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // 검색 및 필터링 상태
+  const [searchQuery, setSearchQuery] = useState('');
+  const [actualSearchQuery, setActualSearchQuery] = useState(''); // 실제 검색에 사용되는 쿼리
+  const [searchResults, setSearchResults] = useState(products); // 검색 결과만 저장
+  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedFlavors, setSelectedFlavors] = useState<string[]>([]);
+  const [selectedNicotine, setSelectedNicotine] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000]);
+  const [inStockOnly, setInStockOnly] = useState(false);
+
+  // URL 파라미터에서 검색어 추출
+  useEffect(() => {
+    const searchFromUrl = searchParams.get('search');
+    if (searchFromUrl) {
+      setSearchQuery(searchFromUrl);
+      setActualSearchQuery(searchFromUrl);
+    }
+  }, [searchParams]);
+
+  // 검색 실행 함수
+  const executeSearch = () => {
+    setActualSearchQuery(searchQuery);
+    if (searchQuery.trim()) {
+      router.push(`/main?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push('/main');
+    }
+  };
+
+  // 1. 검색 적용 (검색어 변경 시)
+  useEffect(() => {
+    let result = products;
+
+    if (actualSearchQuery.trim()) {
+      result = searchProducts(actualSearchQuery);
+    }
+
+    setSearchResults(result);
+  }, [actualSearchQuery, products, searchProducts]);
+
+  // 2. 필터 적용 (검색 결과에서 추가 필터링)
+  useEffect(() => {
+    let result = searchResults;
+
+    // 브랜드 필터
+    if (selectedBrands.length > 0) {
+      result = result.filter((product) =>
+        selectedBrands.includes(product.brand)
+      );
+    }
+
+    // 맛 필터
+    if (selectedFlavors.length > 0) {
+      result = result.filter((product) =>
+        selectedFlavors.some((flavor) =>
+          product.flavor.toLowerCase().includes(flavor.toLowerCase())
+        )
+      );
+    }
+
+    // 니코틴 필터
+    if (selectedNicotine.length > 0) {
+      result = result.filter((product) =>
+        selectedNicotine.includes(product.nicotine)
+      );
+    }
+
+    // 가격 범위 필터 (기본값이 아닐 때만)
+    if (priceRange[0] > 0 || priceRange[1] < 20000) {
+      const [min, max] = priceRange;
+      result = result.filter(
+        (product) => product.price >= min && product.price <= max
+      );
+    }
+
+    // 재고 필터
+    if (inStockOnly) {
+      result = result.filter((product) => product.inStock);
+    }
+
+    setFilteredProducts(result);
+  }, [
+    searchResults,
+    selectedBrands,
+    selectedFlavors,
+    selectedNicotine,
+    priceRange,
+    inStockOnly,
+  ]);
+
+  // 브랜드 필터 처리
+  const handleBrandChange = (brand: string, checked: boolean) => {
+    if (checked) {
+      setSelectedBrands([...selectedBrands, brand]);
+    } else {
+      setSelectedBrands(selectedBrands.filter((b) => b !== brand));
+    }
+  };
+
+  // 니코틴 필터 처리
+  const handleNicotineChange = (nicotine: string, checked: boolean) => {
+    if (checked) {
+      setSelectedNicotine([...selectedNicotine, nicotine]);
+    } else {
+      setSelectedNicotine(selectedNicotine.filter((n) => n !== nicotine));
+    }
+  };
+
+  // 맛 필터 처리
+  const handleFlavorChange = (flavor: string, checked: boolean) => {
+    if (checked) {
+      setSelectedFlavors([...selectedFlavors, flavor]);
+    } else {
+      setSelectedFlavors(selectedFlavors.filter((f) => f !== flavor));
+    }
+  };
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -38,6 +167,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedBrands.includes('나스티')}
+                        onChange={(e) =>
+                          handleBrandChange('나스티', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>나스티</span>
@@ -45,6 +178,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedBrands.includes('코스모스')}
+                        onChange={(e) =>
+                          handleBrandChange('코스모스', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>코스모스</span>
@@ -52,6 +189,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedBrands.includes('맥스웰')}
+                        onChange={(e) =>
+                          handleBrandChange('맥스웰', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>맥스웰</span>
@@ -59,6 +200,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedBrands.includes('더원')}
+                        onChange={(e) =>
+                          handleBrandChange('더원', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>더원</span>
@@ -72,6 +217,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedFlavors.includes('과일')}
+                        onChange={(e) =>
+                          handleFlavorChange('과일', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>과일</span>
@@ -79,6 +228,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedFlavors.includes('멘솔')}
+                        onChange={(e) =>
+                          handleFlavorChange('멘솔', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>멘솔</span>
@@ -86,6 +239,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedFlavors.includes('디저트')}
+                        onChange={(e) =>
+                          handleFlavorChange('디저트', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>디저트</span>
@@ -93,6 +250,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedFlavors.includes('음료')}
+                        onChange={(e) =>
+                          handleFlavorChange('음료', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>음료</span>
@@ -108,6 +269,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedNicotine.includes('0mg')}
+                        onChange={(e) =>
+                          handleNicotineChange('0mg', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>0mg</span>
@@ -115,6 +280,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedNicotine.includes('3mg')}
+                        onChange={(e) =>
+                          handleNicotineChange('3mg', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>3mg</span>
@@ -122,6 +291,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedNicotine.includes('6mg')}
+                        onChange={(e) =>
+                          handleNicotineChange('6mg', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>6mg</span>
@@ -145,10 +318,21 @@ export default function Home() {
                     <input
                       type='text'
                       placeholder='제품명, 브랜드를 검색하세요'
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyUp={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          executeSearch();
+                        }
+                      }}
                       className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
                     />
                   </div>
-                  <button className='px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors'>
+                  <button
+                    onClick={executeSearch}
+                    className='px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors'
+                  >
                     검색
                   </button>
                 </div>
@@ -172,7 +356,7 @@ export default function Home() {
 
             {/* Products Grid */}
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
                   id={product.id}
