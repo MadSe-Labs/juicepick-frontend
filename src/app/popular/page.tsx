@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Search,
   Filter,
@@ -14,8 +16,36 @@ import ProductCard from '@/components/product-card';
 import PriceFilter from '@/components/price-filter';
 import SidebarAd from '@/components/sidebar-ad';
 import Footer from '@/components/footer';
+import { useProductStore } from '@/stores/useProductStore';
+import { useCartStore } from '@/stores/useCartStore';
+import { useProductSearch } from '@/hooks/useProductSearch';
+import { useProductFilter } from '@/hooks/useProductFilter';
 
 export default function Popular() {
+  const { addItem } = useCartStore();
+
+  // 커스텀 훅 사용
+  const { searchQuery, setSearchQuery, searchResults, executeSearch } =
+    useProductSearch();
+  const {
+    filteredProducts,
+    filters: { selectedBrands, selectedFlavors, selectedNicotine },
+    handleBrandChange,
+    handleFlavorChange,
+    handleNicotineChange,
+  } = useProductFilter(searchResults);
+
+  // 인기 및 신제품은 store에서 직접 가져오기
+  const { popularProducts, newProducts } = useProductStore();
+
+  // 인기도 순으로 정렬 (특화 기능)
+  const sortedByPopularity = [...filteredProducts].sort(
+    (a, b) => b.rating * b.reviewCount - a.rating * a.reviewCount
+  );
+
+  // TOP 3 상품 추출
+  const topProducts = sortedByPopularity.slice(0, 3);
+  const otherProducts = sortedByPopularity.slice(3);
   return (
     <div className='min-h-screen bg-gray-50'>
       <Header />
@@ -39,6 +69,10 @@ export default function Popular() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedBrands.includes('나스티')}
+                        onChange={(e) =>
+                          handleBrandChange('나스티', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>나스티</span>
@@ -46,6 +80,10 @@ export default function Popular() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedBrands.includes('코스모스')}
+                        onChange={(e) =>
+                          handleBrandChange('코스모스', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>코스모스</span>
@@ -53,6 +91,10 @@ export default function Popular() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedBrands.includes('맥스웰')}
+                        onChange={(e) =>
+                          handleBrandChange('맥스웰', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>맥스웰</span>
@@ -60,6 +102,10 @@ export default function Popular() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedBrands.includes('더원')}
+                        onChange={(e) =>
+                          handleBrandChange('더원', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>더원</span>
@@ -73,6 +119,10 @@ export default function Popular() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedFlavors.includes('과일')}
+                        onChange={(e) =>
+                          handleFlavorChange('과일', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>과일맛</span>
@@ -80,6 +130,10 @@ export default function Popular() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedFlavors.includes('멘솔')}
+                        onChange={(e) =>
+                          handleFlavorChange('멘솔', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>민트맛</span>
@@ -87,6 +141,10 @@ export default function Popular() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedFlavors.includes('담배')}
+                        onChange={(e) =>
+                          handleFlavorChange('담배', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>담배맛</span>
@@ -94,6 +152,10 @@ export default function Popular() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedFlavors.includes('디저트')}
+                        onChange={(e) =>
+                          handleFlavorChange('디저트', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>디저트맛</span>
@@ -109,6 +171,10 @@ export default function Popular() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedNicotine.includes('0mg')}
+                        onChange={(e) =>
+                          handleNicotineChange('0mg', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>0mg</span>
@@ -116,6 +182,10 @@ export default function Popular() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedNicotine.includes('3mg')}
+                        onChange={(e) =>
+                          handleNicotineChange('3mg', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>3mg</span>
@@ -123,6 +193,10 @@ export default function Popular() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedNicotine.includes('6mg')}
+                        onChange={(e) =>
+                          handleNicotineChange('6mg', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>6mg</span>
@@ -130,6 +204,10 @@ export default function Popular() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedNicotine.includes('9mg+')}
+                        onChange={(e) =>
+                          handleNicotineChange('9mg+', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>9mg+</span>
@@ -163,6 +241,14 @@ export default function Popular() {
                   <input
                     type='text'
                     placeholder='인기 제품 검색'
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyUp={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        executeSearch();
+                      }
+                    }}
                     className='w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500'
                   />
                   <Search className='absolute left-3 top-2.5 h-5 w-5 text-gray-400' />
@@ -242,69 +328,39 @@ export default function Popular() {
                   TOP 3 인기상품
                 </h3>
                 <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                  <div className='relative'>
-                    <div className='absolute -top-2 -left-2 bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg z-10'>
-                      1
+                  {topProducts.map((product, index) => (
+                    <div key={product.id} className='relative'>
+                      <div
+                        className={`absolute -top-2 -left-2 ${
+                          index === 0
+                            ? 'bg-yellow-500'
+                            : index === 1
+                            ? 'bg-gray-400'
+                            : 'bg-orange-500'
+                        } text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg z-10`}
+                      >
+                        {index + 1}
+                      </div>
+                      <ProductCard
+                        id={product.id}
+                        name={product.name}
+                        image={product.image}
+                        lowestPrice={product.price}
+                        averagePrice={product.originalPrice || product.price}
+                        sellers={
+                          product.sellers || (parseInt(product.id) % 8) + 3
+                        }
+                        rating={product.rating}
+                        reviewCount={product.reviewCount}
+                        specs={{
+                          nicotine: product.nicotine,
+                          volume: '30ml',
+                          pgvg: '50/50',
+                          flavor: product.flavor,
+                        }}
+                      />
                     </div>
-                    <ProductCard
-                      id='1'
-                      name='나스티 쿠션맨 액상'
-                      image='/placeholder.svg?height=200&width=200'
-                      lowestPrice={15000}
-                      averagePrice={17500}
-                      sellers={8}
-                      rating={4.8}
-                      reviewCount={312}
-                      specs={{
-                        nicotine: '9.8mg',
-                        volume: '30ml',
-                        pgvg: '50/50',
-                        flavor: '과일믹스',
-                      }}
-                    />
-                  </div>
-                  <div className='relative'>
-                    <div className='absolute -top-2 -left-2 bg-gray-400 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg z-10'>
-                      2
-                    </div>
-                    <ProductCard
-                      id='2'
-                      name='코스모스 블루베리 액상'
-                      image='/placeholder.svg?height=200&width=200'
-                      lowestPrice={13500}
-                      averagePrice={15800}
-                      sellers={6}
-                      rating={4.7}
-                      reviewCount={289}
-                      specs={{
-                        nicotine: '6mg',
-                        volume: '30ml',
-                        pgvg: '70/30',
-                        flavor: '블루베리',
-                      }}
-                    />
-                  </div>
-                  <div className='relative'>
-                    <div className='absolute -top-2 -left-2 bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg z-10'>
-                      3
-                    </div>
-                    <ProductCard
-                      id='3'
-                      name='맥스웰 민트 액상'
-                      image='/placeholder.svg?height=200&width=200'
-                      lowestPrice={14200}
-                      averagePrice={16500}
-                      sellers={7}
-                      rating={4.6}
-                      reviewCount={205}
-                      specs={{
-                        nicotine: '3mg',
-                        volume: '30ml',
-                        pgvg: '50/50',
-                        flavor: '멘톨민트',
-                      }}
-                    />
-                  </div>
+                  ))}
                 </div>
               </div>
 
@@ -315,102 +371,27 @@ export default function Popular() {
                   기타 인기상품
                 </h3>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                  <ProductCard
-                    id='4'
-                    name='더원 망고 액상'
-                    image='/placeholder.svg?height=200&width=200'
-                    lowestPrice={12800}
-                    averagePrice={15200}
-                    sellers={5}
-                    rating={4.5}
-                    reviewCount={178}
-                    specs={{
-                      nicotine: '9mg',
-                      volume: '30ml',
-                      pgvg: '60/40',
-                      flavor: '망고',
-                    }}
-                  />
-                  <ProductCard
-                    id='5'
-                    name='베이프윌 딸기 액상'
-                    image='/placeholder.svg?height=200&width=200'
-                    lowestPrice={11500}
-                    averagePrice={13800}
-                    sellers={4}
-                    rating={4.4}
-                    reviewCount={156}
-                    specs={{
-                      nicotine: '6mg',
-                      volume: '30ml',
-                      pgvg: '50/50',
-                      flavor: '딸기',
-                    }}
-                  />
-                  <ProductCard
-                    id='6'
-                    name='프리미어 바닐라 액상'
-                    image='/placeholder.svg?height=200&width=200'
-                    lowestPrice={16800}
-                    averagePrice={19200}
-                    sellers={6}
-                    rating={4.7}
-                    reviewCount={234}
-                    specs={{
-                      nicotine: '3mg',
-                      volume: '30ml',
-                      pgvg: '70/30',
-                      flavor: '바닐라',
-                    }}
-                  />
-                  <ProductCard
-                    id='7'
-                    name='클라우드 체리 액상'
-                    image='/placeholder.svg?height=200&width=200'
-                    lowestPrice={13200}
-                    averagePrice={15600}
-                    sellers={5}
-                    rating={4.3}
-                    reviewCount={142}
-                    specs={{
-                      nicotine: '9mg',
-                      volume: '30ml',
-                      pgvg: '50/50',
-                      flavor: '체리',
-                    }}
-                  />
-                  <ProductCard
-                    id='8'
-                    name='유니크 콜라 액상'
-                    image='/placeholder.svg?height=200&width=200'
-                    lowestPrice={14500}
-                    averagePrice={16900}
-                    sellers={4}
-                    rating={4.2}
-                    reviewCount={98}
-                    specs={{
-                      nicotine: '6mg',
-                      volume: '30ml',
-                      pgvg: '60/40',
-                      flavor: '콜라',
-                    }}
-                  />
-                  <ProductCard
-                    id='9'
-                    name='레전드 포도 액상'
-                    image='/placeholder.svg?height=200&width=200'
-                    lowestPrice={12000}
-                    averagePrice={14400}
-                    sellers={6}
-                    rating={4.6}
-                    reviewCount={187}
-                    specs={{
-                      nicotine: '3mg',
-                      volume: '30ml',
-                      pgvg: '70/30',
-                      flavor: '포도',
-                    }}
-                  />
+                  {otherProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      image={product.image}
+                      lowestPrice={product.price}
+                      averagePrice={product.originalPrice || product.price}
+                      sellers={
+                        product.sellers || (parseInt(product.id) % 8) + 3
+                      }
+                      rating={product.rating}
+                      reviewCount={product.reviewCount}
+                      specs={{
+                        nicotine: product.nicotine,
+                        volume: '30ml',
+                        pgvg: '50/50',
+                        flavor: product.flavor,
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
             </div>

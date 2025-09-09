@@ -1,8 +1,6 @@
 'use client';
 
 import { Search, Filter, Bell, ChevronDown } from 'lucide-react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
 import Header from '@/components/header';
 import Banner from '@/components/banner';
 import ProductCard from '@/components/product-card';
@@ -12,137 +10,25 @@ import Footer from '@/components/footer';
 import PriceTrendChart from '@/components/price-trend-chart';
 import { useProductStore } from '@/stores/useProductStore';
 import { useCartStore } from '@/stores/useCartStore';
-import type { ProductFilters } from '@/stores/useProductStore';
+import { useProductSearch } from '@/hooks/useProductSearch';
+import { useProductFilter } from '@/hooks/useProductFilter';
 
 export default function Home() {
-  const {
-    products,
-    popularProducts,
-    newProducts,
-    searchProducts,
-    filterProducts,
-  } = useProductStore();
   const { addItem } = useCartStore();
-  const searchParams = useSearchParams();
-  const router = useRouter();
 
-  // 검색 및 필터링 상태
-  const [searchQuery, setSearchQuery] = useState('');
-  const [actualSearchQuery, setActualSearchQuery] = useState(''); // 실제 검색에 사용되는 쿼리
-  const [searchResults, setSearchResults] = useState(products); // 검색 결과만 저장
-  const [filteredProducts, setFilteredProducts] = useState(products);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [selectedFlavors, setSelectedFlavors] = useState<string[]>([]);
-  const [selectedNicotine, setSelectedNicotine] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000]);
-  const [inStockOnly, setInStockOnly] = useState(false);
+  // 커스텀 훅 사용
+  const { searchQuery, setSearchQuery, searchResults, executeSearch } =
+    useProductSearch();
+  const {
+    filteredProducts,
+    filters: { selectedBrands, selectedFlavors, selectedNicotine },
+    handleBrandChange,
+    handleFlavorChange,
+    handleNicotineChange,
+  } = useProductFilter(searchResults);
 
-  // URL 파라미터에서 검색어 추출
-  useEffect(() => {
-    const searchFromUrl = searchParams.get('search');
-    if (searchFromUrl) {
-      setSearchQuery(searchFromUrl);
-      setActualSearchQuery(searchFromUrl);
-    }
-  }, [searchParams]);
-
-  // 검색 실행 함수
-  const executeSearch = () => {
-    setActualSearchQuery(searchQuery);
-    if (searchQuery.trim()) {
-      router.push(`/main?search=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      router.push('/main');
-    }
-  };
-
-  // 1. 검색 적용 (검색어 변경 시)
-  useEffect(() => {
-    let result = products;
-
-    if (actualSearchQuery.trim()) {
-      result = searchProducts(actualSearchQuery);
-    }
-
-    setSearchResults(result);
-  }, [actualSearchQuery, products, searchProducts]);
-
-  // 2. 필터 적용 (검색 결과에서 추가 필터링)
-  useEffect(() => {
-    let result = searchResults;
-
-    // 브랜드 필터
-    if (selectedBrands.length > 0) {
-      result = result.filter((product) =>
-        selectedBrands.includes(product.brand)
-      );
-    }
-
-    // 맛 필터
-    if (selectedFlavors.length > 0) {
-      result = result.filter((product) =>
-        selectedFlavors.some((flavor) =>
-          product.flavor.toLowerCase().includes(flavor.toLowerCase())
-        )
-      );
-    }
-
-    // 니코틴 필터
-    if (selectedNicotine.length > 0) {
-      result = result.filter((product) =>
-        selectedNicotine.includes(product.nicotine)
-      );
-    }
-
-    // 가격 범위 필터 (기본값이 아닐 때만)
-    if (priceRange[0] > 0 || priceRange[1] < 20000) {
-      const [min, max] = priceRange;
-      result = result.filter(
-        (product) => product.price >= min && product.price <= max
-      );
-    }
-
-    // 재고 필터
-    if (inStockOnly) {
-      result = result.filter((product) => product.inStock);
-    }
-
-    setFilteredProducts(result);
-  }, [
-    searchResults,
-    selectedBrands,
-    selectedFlavors,
-    selectedNicotine,
-    priceRange,
-    inStockOnly,
-  ]);
-
-  // 브랜드 필터 처리
-  const handleBrandChange = (brand: string, checked: boolean) => {
-    if (checked) {
-      setSelectedBrands([...selectedBrands, brand]);
-    } else {
-      setSelectedBrands(selectedBrands.filter((b) => b !== brand));
-    }
-  };
-
-  // 니코틴 필터 처리
-  const handleNicotineChange = (nicotine: string, checked: boolean) => {
-    if (checked) {
-      setSelectedNicotine([...selectedNicotine, nicotine]);
-    } else {
-      setSelectedNicotine(selectedNicotine.filter((n) => n !== nicotine));
-    }
-  };
-
-  // 맛 필터 처리
-  const handleFlavorChange = (flavor: string, checked: boolean) => {
-    if (checked) {
-      setSelectedFlavors([...selectedFlavors, flavor]);
-    } else {
-      setSelectedFlavors(selectedFlavors.filter((f) => f !== flavor));
-    }
-  };
+  // 인기 및 신제품은 store에서 직접 가져오기
+  const { popularProducts, newProducts } = useProductStore();
 
   return (
     <div className='min-h-screen bg-gray-50'>
