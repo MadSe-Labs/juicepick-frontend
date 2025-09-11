@@ -31,6 +31,7 @@ export default function Popular() {
     searchResults,
     executeSearch,
     isSearching,
+    actualSearchQuery,
   } = useProductSearch();
   const {
     filteredProducts,
@@ -420,7 +421,7 @@ export default function Popular() {
                   <h3 className='font-bold text-xl mb-4 flex items-center gap-2'>
                     <Search className='h-6 w-6 text-blue-500' />
                     {isSearching
-                      ? `"${searchQuery}" 검색 결과`
+                      ? `"${actualSearchQuery}" 검색 결과`
                       : '필터링된 상품'}
                     <span className='text-sm font-normal text-gray-500'>
                       ({sortedByPopularity.length}개)
@@ -450,7 +451,7 @@ export default function Popular() {
                     ))}
                   </div>
                   {sortedByPopularity.length === 0 && (
-                    <div className='text-center py-12'>
+                    <div className='bg-white p-12 rounded-lg shadow text-center'>
                       <div className='text-gray-400 text-lg mb-2'>
                         검색 결과가 없습니다
                       </div>

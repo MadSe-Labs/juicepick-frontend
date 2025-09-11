@@ -52,5 +52,6 @@ export const useProductSearch = () => {
     searchResults,
     executeSearch,
     isSearching: actualSearchQuery.trim() !== '',
+    actualSearchQuery, // 실제 검색된 쿼리 추가
   };
 };

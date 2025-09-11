@@ -17,8 +17,14 @@ export default function Home() {
   const { addItem } = useCartStore();
 
   // 커스텀 훅 사용
-  const { searchQuery, setSearchQuery, searchResults, executeSearch } =
-    useProductSearch();
+  const {
+    searchQuery,
+    setSearchQuery,
+    searchResults,
+    executeSearch,
+    isSearching,
+    actualSearchQuery,
+  } = useProductSearch();
   const {
     filteredProducts,
     filters: { selectedBrands, selectedFlavors, selectedNicotine },
@@ -26,6 +32,12 @@ export default function Home() {
     handleFlavorChange,
     handleNicotineChange,
   } = useProductFilter(searchResults);
+
+  // 검색/필터링 활성 상태 체크
+  const hasActiveFilters =
+    selectedBrands.length > 0 ||
+    selectedFlavors.length > 0 ||
+    selectedNicotine.length > 0;
 
   // 인기 및 신제품은 store에서 직접 가져오기
   const { popularProducts, newProducts } = useProductStore();
@@ -241,26 +253,63 @@ export default function Home() {
             </div>
 
             {/* Products Grid */}
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-              {filteredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  name={product.name}
-                  image={product.image}
-                  lowestPrice={product.price}
-                  averagePrice={product.originalPrice || product.price}
-                  sellers={product.sellers || (parseInt(product.id) % 8) + 3} // 고정된 패턴으로 판매자 수 생성
-                  rating={product.rating}
-                  reviewCount={product.reviewCount}
-                  specs={{
-                    nicotine: product.nicotine,
-                    volume: product.volume,
-                    pgvg: '50/50', // 임시 값
-                    flavor: product.flavor,
-                  }}
-                />
-              ))}
+            <div>
+              {/* 검색/필터 결과 헤더 */}
+              {(isSearching || hasActiveFilters) && (
+                <div className='bg-white p-4 rounded-lg shadow mb-6'>
+                  <h3 className='font-bold text-lg flex items-center gap-2'>
+                    <Search className='h-6 w-6 text-blue-500' />
+                    {isSearching
+                      ? `"${actualSearchQuery}" 검색 결과`
+                      : '필터링된 상품'}
+                    <span className='text-sm font-normal text-gray-500'>
+                      ({filteredProducts.length}개)
+                    </span>
+                  </h3>
+                </div>
+              )}
+
+              {/* 상품 그리드 */}
+              {filteredProducts.length > 0 ? (
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                  {filteredProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      image={product.image}
+                      lowestPrice={product.price}
+                      averagePrice={product.originalPrice || product.price}
+                      sellers={
+                        product.sellers || (parseInt(product.id) % 8) + 3
+                      } // 고정된 패턴으로 판매자 수 생성
+                      rating={product.rating}
+                      reviewCount={product.reviewCount}
+                      specs={{
+                        nicotine: product.nicotine,
+                        volume: product.volume,
+                        pgvg: '50/50', // 임시 값
+                        flavor: product.flavor,
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className='bg-white p-12 rounded-lg shadow text-center'>
+                  <div className='text-gray-400 text-lg mb-2'>
+                    {isSearching
+                      ? '검색 결과가 없습니다'
+                      : hasActiveFilters
+                      ? '필터 조건에 맞는 상품이 없습니다'
+                      : '상품이 없습니다'}
+                  </div>
+                  <div className='text-gray-500 text-sm'>
+                    {isSearching || hasActiveFilters
+                      ? '다른 검색어나 필터 조건을 시도해보세요'
+                      : '곧 새로운 상품을 준비하겠습니다'}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Load More Button */}
