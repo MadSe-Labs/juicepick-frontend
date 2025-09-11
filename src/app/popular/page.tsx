@@ -25,8 +25,13 @@ export default function Popular() {
   const { addItem } = useCartStore();
 
   // 커스텀 훅 사용
-  const { searchQuery, setSearchQuery, searchResults, executeSearch } =
-    useProductSearch();
+  const {
+    searchQuery,
+    setSearchQuery,
+    searchResults,
+    executeSearch,
+    isSearching,
+  } = useProductSearch();
   const {
     filteredProducts,
     filters: { selectedBrands, selectedFlavors, selectedNicotine },
@@ -38,14 +43,24 @@ export default function Popular() {
   // 인기 및 신제품은 store에서 직접 가져오기
   const { popularProducts, newProducts } = useProductStore();
 
+  // 검색/필터링 활성 상태 체크
+  const hasActiveFilters =
+    selectedBrands.length > 0 ||
+    selectedFlavors.length > 0 ||
+    selectedNicotine.length > 0;
+  const showTopSection = !isSearching && !hasActiveFilters;
+
   // 인기도 순으로 정렬 (특화 기능)
   const sortedByPopularity = [...filteredProducts].sort(
     (a, b) => b.rating * b.reviewCount - a.rating * a.reviewCount
   );
 
-  // TOP 3 상품 추출
-  const topProducts = sortedByPopularity.slice(0, 3);
-  const otherProducts = sortedByPopularity.slice(3);
+  // TOP 3 상품 추출 (기본 상태에서만)
+  const topProducts = showTopSection ? sortedByPopularity.slice(0, 3) : [];
+  const otherProducts = showTopSection
+    ? sortedByPopularity.slice(3)
+    : sortedByPopularity;
+
   return (
     <div className='min-h-screen bg-gray-50'>
       <Header />
@@ -321,27 +336,100 @@ export default function Popular() {
 
             {/* Products Grid with Popularity Rankings */}
             <div className='space-y-6'>
-              {/* Top 3 Popular Products */}
-              <div>
-                <h3 className='font-bold text-xl mb-4 flex items-center gap-2'>
-                  <Crown className='h-6 w-6 text-yellow-500' />
-                  TOP 3 인기상품
-                </h3>
-                <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                  {topProducts.map((product, index) => (
-                    <div key={product.id} className='relative'>
-                      <div
-                        className={`absolute -top-2 -left-2 ${
-                          index === 0
-                            ? 'bg-yellow-500'
-                            : index === 1
-                            ? 'bg-gray-400'
-                            : 'bg-orange-500'
-                        } text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg z-10`}
-                      >
-                        {index + 1}
-                      </div>
+              {showTopSection ? (
+                <>
+                  {/* Top 3 Popular Products */}
+                  <div>
+                    <h3 className='font-bold text-xl mb-4 flex items-center gap-2'>
+                      <Crown className='h-6 w-6 text-yellow-500' />
+                      TOP 3 인기상품
+                    </h3>
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                      {topProducts.map((product, index) => (
+                        <div key={product.id} className='relative'>
+                          <div
+                            className={`absolute -top-2 -left-2 ${
+                              index === 0
+                                ? 'bg-yellow-500'
+                                : index === 1
+                                ? 'bg-gray-400'
+                                : 'bg-orange-500'
+                            } text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg z-10`}
+                          >
+                            {index + 1}
+                          </div>
+                          <ProductCard
+                            id={product.id}
+                            name={product.name}
+                            image={product.image}
+                            lowestPrice={product.price}
+                            averagePrice={
+                              product.originalPrice || product.price
+                            }
+                            sellers={
+                              product.sellers || (parseInt(product.id) % 8) + 3
+                            }
+                            rating={product.rating}
+                            reviewCount={product.reviewCount}
+                            specs={{
+                              nicotine: product.nicotine,
+                              volume: '30ml',
+                              pgvg: '50/50',
+                              flavor: product.flavor,
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Other Popular Products */}
+                  <div>
+                    <h3 className='font-bold text-xl mb-4 flex items-center gap-2'>
+                      <Flame className='h-6 w-6 text-red-500' />
+                      기타 인기상품
+                    </h3>
+                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                      {otherProducts.map((product) => (
+                        <ProductCard
+                          key={product.id}
+                          id={product.id}
+                          name={product.name}
+                          image={product.image}
+                          lowestPrice={product.price}
+                          averagePrice={product.originalPrice || product.price}
+                          sellers={
+                            product.sellers || (parseInt(product.id) % 8) + 3
+                          }
+                          rating={product.rating}
+                          reviewCount={product.reviewCount}
+                          specs={{
+                            nicotine: product.nicotine,
+                            volume: '30ml',
+                            pgvg: '50/50',
+                            flavor: product.flavor,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* 검색/필터링 결과 */
+                <div>
+                  <h3 className='font-bold text-xl mb-4 flex items-center gap-2'>
+                    <Search className='h-6 w-6 text-blue-500' />
+                    {isSearching
+                      ? `"${searchQuery}" 검색 결과`
+                      : '필터링된 상품'}
+                    <span className='text-sm font-normal text-gray-500'>
+                      ({sortedByPopularity.length}개)
+                    </span>
+                  </h3>
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                    {sortedByPopularity.map((product) => (
                       <ProductCard
+                        key={product.id}
                         id={product.id}
                         name={product.name}
                         image={product.image}
@@ -359,41 +447,20 @@ export default function Popular() {
                           flavor: product.flavor,
                         }}
                       />
+                    ))}
+                  </div>
+                  {sortedByPopularity.length === 0 && (
+                    <div className='text-center py-12'>
+                      <div className='text-gray-400 text-lg mb-2'>
+                        검색 결과가 없습니다
+                      </div>
+                      <div className='text-gray-500 text-sm'>
+                        다른 검색어나 필터를 시도해보세요
+                      </div>
                     </div>
-                  ))}
+                  )}
                 </div>
-              </div>
-
-              {/* Other Popular Products */}
-              <div>
-                <h3 className='font-bold text-xl mb-4 flex items-center gap-2'>
-                  <Flame className='h-6 w-6 text-red-500' />
-                  기타 인기상품
-                </h3>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                  {otherProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      id={product.id}
-                      name={product.name}
-                      image={product.image}
-                      lowestPrice={product.price}
-                      averagePrice={product.originalPrice || product.price}
-                      sellers={
-                        product.sellers || (parseInt(product.id) % 8) + 3
-                      }
-                      rating={product.rating}
-                      reviewCount={product.reviewCount}
-                      specs={{
-                        nicotine: product.nicotine,
-                        volume: '30ml',
-                        pgvg: '50/50',
-                        flavor: product.flavor,
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Load More Button */}
