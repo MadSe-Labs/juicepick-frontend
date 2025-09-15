@@ -20,6 +20,8 @@ import { useProductStore } from '@/stores/useProductStore';
 import { useCartStore } from '@/stores/useCartStore';
 import { useProductSearch } from '@/hooks/useProductSearch';
 import { useProductFilter } from '@/hooks/useProductFilter';
+import { usePagination } from '@/hooks/usePagination';
+import LoadMoreButton from '@/components/load-more-button';
 
 export default function Popular() {
   const { addItem } = useCartStore();
@@ -41,6 +43,25 @@ export default function Popular() {
     handleNicotineChange,
   } = useProductFilter(searchResults);
 
+  // 페이지네이션 커스텀 훅 사용
+  const {
+    displayedItems: displayedProducts,
+    totalItems: totalProducts,
+    hasMoreItems: hasMoreProducts,
+    remainingCount,
+    isLoadingMore,
+    handleLoadMore,
+  } = usePagination({
+    items: filteredProducts,
+    itemsPerPage: 6,
+    dependencies: [
+      searchResults,
+      selectedBrands,
+      selectedFlavors,
+      selectedNicotine,
+    ],
+  });
+
   // 인기 및 신제품은 store에서 직접 가져오기
   const { popularProducts, newProducts } = useProductStore();
 
@@ -58,9 +79,31 @@ export default function Popular() {
 
   // TOP 3 상품 추출 (기본 상태에서만)
   const topProducts = showTopSection ? sortedByPopularity.slice(0, 3) : [];
-  const otherProducts = showTopSection
-    ? sortedByPopularity.slice(3)
+  const otherProductsAll = showTopSection
+    ? sortedByPopularity.slice(3) // TOP 3 제외한 나머지
     : sortedByPopularity;
+
+  // 기타 인기상품에 대한 별도 페이지네이션
+  const otherProductsPagination = usePagination({
+    items: otherProductsAll,
+    itemsPerPage: 6,
+    dependencies: [
+      searchResults,
+      selectedBrands,
+      selectedFlavors,
+      selectedNicotine,
+    ],
+  });
+
+  // 구조분해할당
+  const {
+    displayedItems: otherDisplayedProducts,
+    hasMoreItems: hasMoreOtherProducts,
+    isLoadingMore: isLoadingMoreOther,
+    remainingCount: otherRemainingCount,
+    totalItems: otherTotalItems,
+    handleLoadMore: handleLoadMoreOther,
+  } = otherProductsPagination;
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -391,7 +434,7 @@ export default function Popular() {
                       기타 인기상품
                     </h3>
                     <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                      {otherProducts.map((product) => (
+                      {otherDisplayedProducts.map((product) => (
                         <ProductCard
                           key={product.id}
                           id={product.id}
@@ -464,12 +507,28 @@ export default function Popular() {
               )}
             </div>
 
-            {/* Load More Button */}
-            <div className='mt-8 text-center'>
-              <button className='px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium'>
-                더 많은 인기상품 보기
-              </button>
-            </div>
+            {/* Load More Button - 조건별 다른 페이지네이션 적용 */}
+            {showTopSection
+              ? /* 기본 상태: 기타 인기상품 더보기 */
+                otherDisplayedProducts.length > 0 && (
+                  <LoadMoreButton
+                    hasMoreItems={hasMoreOtherProducts}
+                    isLoadingMore={isLoadingMoreOther}
+                    remainingCount={otherRemainingCount}
+                    totalItems={otherTotalItems}
+                    onLoadMore={handleLoadMoreOther}
+                  />
+                )
+              : /* 검색/필터 상태: 전체 결과 더보기 */
+                displayedProducts.length > 0 && (
+                  <LoadMoreButton
+                    hasMoreItems={hasMoreProducts}
+                    isLoadingMore={isLoadingMore}
+                    remainingCount={remainingCount}
+                    totalItems={totalProducts}
+                    onLoadMore={handleLoadMore}
+                  />
+                )}
           </div>
 
           {/* Right Sidebar - Ads */}

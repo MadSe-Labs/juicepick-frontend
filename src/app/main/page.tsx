@@ -1,6 +1,7 @@
 'use client';
 
-import { Search, Filter, Bell, ChevronDown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Filter, Bell, ChevronDown, Loader2 } from 'lucide-react';
 import Header from '@/components/header';
 import Banner from '@/components/banner';
 import ProductCard from '@/components/product-card';
@@ -8,10 +9,12 @@ import PriceFilter from '@/components/price-filter';
 import SidebarAd from '@/components/sidebar-ad';
 import Footer from '@/components/footer';
 import PriceTrendChart from '@/components/price-trend-chart';
+import LoadMoreButton from '@/components/load-more-button';
 import { useProductStore } from '@/stores/useProductStore';
 import { useCartStore } from '@/stores/useCartStore';
 import { useProductSearch } from '@/hooks/useProductSearch';
 import { useProductFilter } from '@/hooks/useProductFilter';
+import { usePagination } from '@/hooks/usePagination';
 
 export default function Home() {
   const { addItem } = useCartStore();
@@ -32,6 +35,25 @@ export default function Home() {
     handleFlavorChange,
     handleNicotineChange,
   } = useProductFilter(searchResults);
+
+  // 페이지네이션 커스텀 훅 사용
+  const {
+    displayedItems: displayedProducts,
+    totalItems: totalProducts,
+    hasMoreItems: hasMoreProducts,
+    remainingCount,
+    isLoadingMore,
+    handleLoadMore,
+  } = usePagination({
+    items: filteredProducts,
+    itemsPerPage: 6,
+    dependencies: [
+      searchResults,
+      selectedBrands,
+      selectedFlavors,
+      selectedNicotine,
+    ],
+  });
 
   // 검색/필터링 활성 상태 체크
   const hasActiveFilters =
@@ -263,16 +285,16 @@ export default function Home() {
                       ? `"${actualSearchQuery}" 검색 결과`
                       : '필터링된 상품'}
                     <span className='text-sm font-normal text-gray-500'>
-                      ({filteredProducts.length}개)
+                      ({totalProducts}개)
                     </span>
                   </h3>
                 </div>
               )}
 
               {/* 상품 그리드 */}
-              {filteredProducts.length > 0 ? (
+              {displayedProducts.length > 0 ? (
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                  {filteredProducts.map((product) => (
+                  {displayedProducts.map((product) => (
                     <ProductCard
                       key={product.id}
                       id={product.id}
@@ -312,12 +334,15 @@ export default function Home() {
               )}
             </div>
 
-            {/* Load More Button */}
-            <div className='mt-8 text-center'>
-              <button className='px-6 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors'>
-                더 보기
-              </button>
-            </div>
+            {displayedProducts.length > 0 && (
+              <LoadMoreButton
+                hasMoreItems={hasMoreProducts}
+                isLoadingMore={isLoadingMore}
+                remainingCount={remainingCount}
+                totalItems={totalProducts}
+                onLoadMore={handleLoadMore}
+              />
+            )}
           </div>
 
           {/* Right Sidebar - Ads and Price Trends */}
