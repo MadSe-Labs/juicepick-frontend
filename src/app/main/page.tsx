@@ -1,6 +1,7 @@
 'use client';
 
-import { Search, Filter, Bell, ChevronDown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Filter, Bell, ChevronDown, Loader2 } from 'lucide-react';
 import Header from '@/components/header';
 import Banner from '@/components/banner';
 import ProductCard from '@/components/product-card';
@@ -8,12 +9,60 @@ import PriceFilter from '@/components/price-filter';
 import SidebarAd from '@/components/sidebar-ad';
 import Footer from '@/components/footer';
 import PriceTrendChart from '@/components/price-trend-chart';
+import LoadMoreButton from '@/components/load-more-button';
 import { useProductStore } from '@/stores/useProductStore';
 import { useCartStore } from '@/stores/useCartStore';
+import { useProductSearch } from '@/hooks/useProductSearch';
+import { useProductFilter } from '@/hooks/useProductFilter';
+import { usePagination } from '@/hooks/usePagination';
 
 export default function Home() {
-  const { products, popularProducts, newProducts } = useProductStore();
   const { addItem } = useCartStore();
+
+  // 커스텀 훅 사용
+  const {
+    searchQuery,
+    setSearchQuery,
+    searchResults,
+    executeSearch,
+    isSearching,
+    actualSearchQuery,
+  } = useProductSearch();
+  const {
+    filteredProducts,
+    filters: { selectedBrands, selectedFlavors, selectedNicotine },
+    handleBrandChange,
+    handleFlavorChange,
+    handleNicotineChange,
+  } = useProductFilter(searchResults);
+
+  // 페이지네이션 커스텀 훅 사용
+  const {
+    displayedItems: displayedProducts,
+    totalItems: totalProducts,
+    hasMoreItems: hasMoreProducts,
+    remainingCount,
+    isLoadingMore,
+    handleLoadMore,
+  } = usePagination({
+    items: filteredProducts,
+    itemsPerPage: 6,
+    dependencies: [
+      searchResults,
+      selectedBrands,
+      selectedFlavors,
+      selectedNicotine,
+    ],
+  });
+
+  // 검색/필터링 활성 상태 체크
+  const hasActiveFilters =
+    selectedBrands.length > 0 ||
+    selectedFlavors.length > 0 ||
+    selectedNicotine.length > 0;
+
+  // 인기 및 신제품은 store에서 직접 가져오기
+  const { popularProducts, newProducts } = useProductStore();
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -38,6 +87,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedBrands.includes('나스티')}
+                        onChange={(e) =>
+                          handleBrandChange('나스티', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>나스티</span>
@@ -45,6 +98,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedBrands.includes('코스모스')}
+                        onChange={(e) =>
+                          handleBrandChange('코스모스', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>코스모스</span>
@@ -52,6 +109,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedBrands.includes('맥스웰')}
+                        onChange={(e) =>
+                          handleBrandChange('맥스웰', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>맥스웰</span>
@@ -59,6 +120,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedBrands.includes('더원')}
+                        onChange={(e) =>
+                          handleBrandChange('더원', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>더원</span>
@@ -72,6 +137,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedFlavors.includes('과일')}
+                        onChange={(e) =>
+                          handleFlavorChange('과일', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>과일</span>
@@ -79,6 +148,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedFlavors.includes('멘솔')}
+                        onChange={(e) =>
+                          handleFlavorChange('멘솔', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>멘솔</span>
@@ -86,6 +159,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedFlavors.includes('디저트')}
+                        onChange={(e) =>
+                          handleFlavorChange('디저트', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>디저트</span>
@@ -93,6 +170,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedFlavors.includes('음료')}
+                        onChange={(e) =>
+                          handleFlavorChange('음료', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>음료</span>
@@ -108,6 +189,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedNicotine.includes('0mg')}
+                        onChange={(e) =>
+                          handleNicotineChange('0mg', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>0mg</span>
@@ -115,6 +200,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedNicotine.includes('3mg')}
+                        onChange={(e) =>
+                          handleNicotineChange('3mg', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>3mg</span>
@@ -122,6 +211,10 @@ export default function Home() {
                     <label className='flex items-center'>
                       <input
                         type='checkbox'
+                        checked={selectedNicotine.includes('6mg')}
+                        onChange={(e) =>
+                          handleNicotineChange('6mg', e.target.checked)
+                        }
                         className='rounded text-green-500 mr-2'
                       />
                       <span>6mg</span>
@@ -145,10 +238,21 @@ export default function Home() {
                     <input
                       type='text'
                       placeholder='제품명, 브랜드를 검색하세요'
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyUp={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          executeSearch();
+                        }
+                      }}
                       className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
                     />
                   </div>
-                  <button className='px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors'>
+                  <button
+                    onClick={executeSearch}
+                    className='px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors'
+                  >
                     검색
                   </button>
                 </div>
@@ -171,34 +275,74 @@ export default function Home() {
             </div>
 
             {/* Products Grid */}
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  name={product.name}
-                  image={product.image}
-                  lowestPrice={product.price}
-                  averagePrice={product.originalPrice || product.price}
-                  sellers={product.sellers || (parseInt(product.id) % 8) + 3} // 고정된 패턴으로 판매자 수 생성
-                  rating={product.rating}
-                  reviewCount={product.reviewCount}
-                  specs={{
-                    nicotine: product.nicotine,
-                    volume: product.volume,
-                    pgvg: '50/50', // 임시 값
-                    flavor: product.flavor,
-                  }}
-                />
-              ))}
+            <div>
+              {/* 검색/필터 결과 헤더 */}
+              {(isSearching || hasActiveFilters) && (
+                <div className='bg-white p-4 rounded-lg shadow mb-6'>
+                  <h3 className='font-bold text-lg flex items-center gap-2'>
+                    <Search className='h-6 w-6 text-blue-500' />
+                    {isSearching
+                      ? `"${actualSearchQuery}" 검색 결과`
+                      : '필터링된 상품'}
+                    <span className='text-sm font-normal text-gray-500'>
+                      ({totalProducts}개)
+                    </span>
+                  </h3>
+                </div>
+              )}
+
+              {/* 상품 그리드 */}
+              {displayedProducts.length > 0 ? (
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                  {displayedProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      image={product.image}
+                      lowestPrice={product.price}
+                      averagePrice={product.originalPrice || product.price}
+                      sellers={
+                        product.sellers || (parseInt(product.id) % 8) + 3
+                      } // 고정된 패턴으로 판매자 수 생성
+                      rating={product.rating}
+                      reviewCount={product.reviewCount}
+                      specs={{
+                        nicotine: product.nicotine,
+                        volume: product.volume,
+                        pgvg: '50/50', // 임시 값
+                        flavor: product.flavor,
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className='bg-white p-12 rounded-lg shadow text-center'>
+                  <div className='text-gray-400 text-lg mb-2'>
+                    {isSearching
+                      ? '검색 결과가 없습니다'
+                      : hasActiveFilters
+                      ? '필터 조건에 맞는 상품이 없습니다'
+                      : '상품이 없습니다'}
+                  </div>
+                  <div className='text-gray-500 text-sm'>
+                    {isSearching || hasActiveFilters
+                      ? '다른 검색어나 필터 조건을 시도해보세요'
+                      : '곧 새로운 상품을 준비하겠습니다'}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Load More Button */}
-            <div className='mt-8 text-center'>
-              <button className='px-6 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors'>
-                더 보기
-              </button>
-            </div>
+            {displayedProducts.length > 0 && (
+              <LoadMoreButton
+                hasMoreItems={hasMoreProducts}
+                isLoadingMore={isLoadingMore}
+                remainingCount={remainingCount}
+                totalItems={totalProducts}
+                onLoadMore={handleLoadMore}
+              />
+            )}
           </div>
 
           {/* Right Sidebar - Ads and Price Trends */}
