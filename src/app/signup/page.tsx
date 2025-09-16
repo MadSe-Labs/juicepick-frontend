@@ -96,14 +96,14 @@ export default function SignupPage() {
   // 성공 메시지 화면
   if (success) {
     return (
-      <div className='min-h-screen bg-gray-50'>
+      <div className='min-h-screen bg-background'>
         <Header />
         <main className='container mx-auto px-4 py-16'>
           <div className='flex items-center justify-center'>
             <div className='max-w-md w-full'>
-              <div className='bg-white py-8 px-6 shadow rounded-lg text-center'>
+              <div className='bg-card py-8 px-6 shadow rounded-lg text-center'>
                 <CheckCircle className='h-16 w-16 text-green-500 mx-auto mb-4' />
-                <h2 className='text-2xl font-bold text-gray-900 mb-2'>
+                <h2 className='text-2xl font-bold text-foreground mb-2'>
                   회원가입 완료!
                 </h2>
                 <p className='text-gray-600 mb-6'>
@@ -127,7 +127,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-background'>
       <Header />
 
       {/* Main Content */}
@@ -136,7 +136,7 @@ export default function SignupPage() {
           <div className='max-w-md w-full space-y-8'>
             {/* Signup Title */}
             <div className='text-center'>
-              <h2 className='text-3xl font-bold text-gray-900'>회원가입</h2>
+              <h2 className='text-3xl font-bold text-foreground'>회원가입</h2>
               <p className='mt-2 text-sm text-gray-600'>
                 액상최저가에 가입하여 더 많은 혜택을 받아보세요
               </p>
@@ -156,7 +156,7 @@ export default function SignupPage() {
             </div>
 
             {/* Signup Form */}
-            <div className='bg-white py-8 px-6 shadow rounded-lg'>
+            <div className='bg-card py-8 px-6 shadow rounded-lg'>
               <form className='space-y-6' onSubmit={handleSignup}>
                 {/* Error Message */}
                 {error && (
@@ -172,7 +172,7 @@ export default function SignupPage() {
                 <div>
                   <label
                     htmlFor='name'
-                    className='block text-sm font-medium text-gray-700 mb-2'
+                    className='block text-sm font-medium text-foreground mb-2'
                   >
                     <div className='flex items-center space-x-1'>
                       <User className='h-4 w-4' />
@@ -195,7 +195,7 @@ export default function SignupPage() {
                 <div>
                   <label
                     htmlFor='email'
-                    className='block text-sm font-medium text-gray-700 mb-2'
+                    className='block text-sm font-medium text-foreground mb-2'
                   >
                     <div className='flex items-center space-x-1'>
                       <Mail className='h-4 w-4' />
@@ -218,7 +218,7 @@ export default function SignupPage() {
                 <div>
                   <label
                     htmlFor='password'
-                    className='block text-sm font-medium text-gray-700 mb-2'
+                    className='block text-sm font-medium text-foreground mb-2'
                   >
                     <div className='flex items-center space-x-1'>
                       <Lock className='h-4 w-4' />
@@ -242,9 +242,9 @@ export default function SignupPage() {
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
-                        <EyeOff className='h-5 w-5 text-gray-400' />
+                        <EyeOff className='h-5 w-5 text-muted-foreground' />
                       ) : (
-                        <Eye className='h-5 w-5 text-gray-400' />
+                        <Eye className='h-5 w-5 text-muted-foreground' />
                       )}
                     </button>
                   </div>
@@ -254,7 +254,7 @@ export default function SignupPage() {
                 <div>
                   <label
                     htmlFor='confirmPassword'
-                    className='block text-sm font-medium text-gray-700 mb-2'
+                    className='block text-sm font-medium text-foreground mb-2'
                   >
                     <div className='flex items-center space-x-1'>
                       <Lock className='h-4 w-4' />
@@ -280,9 +280,9 @@ export default function SignupPage() {
                       }
                     >
                       {showConfirmPassword ? (
-                        <EyeOff className='h-5 w-5 text-gray-400' />
+                        <EyeOff className='h-5 w-5 text-muted-foreground' />
                       ) : (
-                        <Eye className='h-5 w-5 text-gray-400' />
+                        <Eye className='h-5 w-5 text-muted-foreground' />
                       )}
                     </button>
                   </div>
@@ -299,7 +299,7 @@ export default function SignupPage() {
                   />
                   <label
                     htmlFor='agree-terms'
-                    className='ml-2 block text-sm text-gray-900'
+                    className='ml-2 block text-sm text-foreground'
                   >
                     <span className='font-medium'>이용약관</span> 및{' '}
                     <span className='font-medium'>개인정보처리방침</span>에

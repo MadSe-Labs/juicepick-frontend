@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useCartStore } from '@/stores/useCartStore';
+import ThemeToggle from '@/components/theme-toggle';
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -63,7 +64,7 @@ export default function Header() {
   // 활성 상태에 따른 스타일 클래스 반환 함수
   const getLinkClassName = (path: string) => {
     return isActive(path)
-      ? 'text-gray-900 font-medium hover:text-green-500 transition-colors'
+      ? 'text-foreground font-medium hover:text-green-500 transition-colors'
       : 'text-gray-600 hover:text-green-500 transition-colors';
   };
 
@@ -72,7 +73,7 @@ export default function Header() {
   };
 
   return (
-    <header className='bg-white shadow-sm sticky top-0 z-50'>
+    <header className='bg-card shadow-sm sticky top-0 z-50'>
       <div className='container mx-auto px-4'>
         <div className='flex items-center justify-between h-16'>
           {/* Logo */}
@@ -95,7 +96,7 @@ export default function Header() {
                 />
                 <button
                   type='submit'
-                  className='absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-green-500'
+                  className='absolute right-2 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-green-500'
                 >
                   <Search className='h-5 w-5' />
                 </button>
@@ -122,9 +123,12 @@ export default function Header() {
           {/* User Actions */}
           <div className='hidden md:flex items-center space-x-4'>
             {status === 'loading' ? (
-              <div className='text-gray-400'>로딩중...</div>
+              <div className='text-muted-foreground'>로딩중...</div>
             ) : session ? (
               <>
+                {/* 테마 토글 */}
+                <ThemeToggle />
+
                 {/* 장바구니 */}
                 <Link
                   href='/cart'
@@ -140,7 +144,7 @@ export default function Header() {
                 <div className='relative' ref={userMenuRef}>
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className='flex items-center space-x-2 text-gray-700 hover:text-green-500 transition-colors cursor-pointer'
+                    className='flex items-center space-x-2 text-foreground hover:text-green-500 transition-colors cursor-pointer'
                   >
                     <UserCircle className='h-5 w-5' />
                     <span className='text-sm font-medium'>
@@ -150,10 +154,10 @@ export default function Header() {
 
                   {/* 드롭다운 메뉴 */}
                   {isUserMenuOpen && (
-                    <div className='absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border'>
+                    <div className='absolute right-0 mt-2 w-48 bg-card rounded-md shadow-lg py-1 z-50 border'>
                       <Link
                         href='/profile'
-                        className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                        className='block px-4 py-2 text-sm text-foreground hover:bg-accent'
                         onClick={() => setIsUserMenuOpen(false)}
                       >
                         <div className='flex items-center space-x-2'>
@@ -163,7 +167,7 @@ export default function Header() {
                       </Link>
                       <Link
                         href='/my-orders'
-                        className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                        className='block px-4 py-2 text-sm text-foreground hover:bg-accent'
                         onClick={() => setIsUserMenuOpen(false)}
                       >
                         <div className='flex items-center space-x-2'>
@@ -177,7 +181,7 @@ export default function Header() {
                           setIsUserMenuOpen(false);
                           handleSignOut();
                         }}
-                        className='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer'
+                        className='block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-accent cursor-pointer'
                       >
                         <div className='flex items-center space-x-2'>
                           <LogOut className='h-4 w-4' />
@@ -190,6 +194,9 @@ export default function Header() {
               </>
             ) : (
               <>
+                {/* 테마 토글 */}
+                <ThemeToggle />
+
                 <Link
                   href='/login'
                   className='flex items-center space-x-1 text-gray-600 hover:text-green-500 transition-colors'
@@ -260,10 +267,10 @@ export default function Header() {
                     <div className='flex items-center space-x-3 px-2'>
                       <UserCircle className='h-6 w-6 text-gray-600' />
                       <div>
-                        <p className='text-sm font-medium text-gray-900'>
+                        <p className='text-sm font-medium text-foreground'>
                           {session.user?.name}
                         </p>
-                        <p className='text-xs text-gray-500'>
+                        <p className='text-xs text-muted-foreground'>
                           {session.user?.email}
                         </p>
                       </div>

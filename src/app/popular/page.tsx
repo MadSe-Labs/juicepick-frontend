@@ -106,7 +106,7 @@ export default function Popular() {
   } = otherProductsPagination;
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-background'>
       <Header />
       <Banner />
 
@@ -116,12 +116,12 @@ export default function Popular() {
           <div className='w-full lg:w-64 space-y-6'>
             <SidebarAd position='left' />
 
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3'>필터</h3>
 
               <div className='space-y-4'>
                 <div>
-                  <h4 className='font-medium text-sm text-gray-700 mb-2'>
+                  <h4 className='font-medium text-sm text-foreground mb-2'>
                     브랜드
                   </h4>
                   <div className='space-y-1'>
@@ -173,7 +173,9 @@ export default function Popular() {
                 </div>
 
                 <div>
-                  <h4 className='font-medium text-sm text-gray-700 mb-2'>맛</h4>
+                  <h4 className='font-medium text-sm text-foreground mb-2'>
+                    맛
+                  </h4>
                   <div className='space-y-1'>
                     <label className='flex items-center'>
                       <input
@@ -223,7 +225,7 @@ export default function Popular() {
                 </div>
 
                 <div>
-                  <h4 className='font-medium text-sm text-gray-700 mb-2'>
+                  <h4 className='font-medium text-sm text-foreground mb-2'>
                     니코틴
                   </h4>
                   <div className='space-y-1'>
@@ -283,7 +285,7 @@ export default function Popular() {
           <div className='flex-1'>
             {/* Page Title and Description */}
             <div className='mb-6'>
-              <h1 className='text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3'>
+              <h1 className='text-3xl font-bold text-foreground mb-2 flex items-center gap-3'>
                 <Flame className='h-8 w-8 text-red-500' />
                 인기 제품
               </h1>
@@ -294,7 +296,7 @@ export default function Popular() {
             </div>
 
             {/* Search and Sort */}
-            <div className='bg-white p-4 rounded-lg shadow mb-6'>
+            <div className='bg-card p-4 rounded-lg shadow mb-6'>
               <div className='flex flex-col sm:flex-row gap-4'>
                 <div className='relative flex-1'>
                   <input
@@ -310,14 +312,14 @@ export default function Popular() {
                     }}
                     className='w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500'
                   />
-                  <Search className='absolute left-3 top-2.5 h-5 w-5 text-gray-400' />
+                  <Search className='absolute left-3 top-2.5 h-5 w-5 text-muted-foreground' />
                 </div>
                 <div className='flex gap-2'>
-                  <button className='flex items-center gap-1 px-4 py-2 bg-white border rounded-lg hover:bg-gray-50'>
+                  <button className='flex items-center gap-1 px-4 py-2 bg-card border rounded-lg hover:bg-background'>
                     <Filter className='h-4 w-4' />
                     <span>필터</span>
                   </button>
-                  <button className='flex items-center gap-1 px-4 py-2 bg-white border rounded-lg hover:bg-gray-50'>
+                  <button className='flex items-center gap-1 px-4 py-2 bg-card border rounded-lg hover:bg-background'>
                     <span>인기순</span>
                     <ChevronDown className='h-4 w-4' />
                   </button>
@@ -351,7 +353,7 @@ export default function Popular() {
             </div>
 
             {/* Trending Categories */}
-            <div className='bg-white p-4 rounded-lg shadow mb-6'>
+            <div className='bg-card p-4 rounded-lg shadow mb-6'>
               <h3 className='font-bold text-lg mb-4 flex items-center gap-2'>
                 <TrendingUp className='h-5 w-5 text-green-500' />
                 트렌딩 카테고리
@@ -466,7 +468,7 @@ export default function Popular() {
                     {isSearching
                       ? `"${actualSearchQuery}" 검색 결과`
                       : '필터링된 상품'}
-                    <span className='text-sm font-normal text-gray-500'>
+                    <span className='text-sm font-normal text-muted-foreground'>
                       ({sortedByPopularity.length}개)
                     </span>
                   </h3>
@@ -494,11 +496,11 @@ export default function Popular() {
                     ))}
                   </div>
                   {sortedByPopularity.length === 0 && (
-                    <div className='bg-white p-12 rounded-lg shadow text-center'>
-                      <div className='text-gray-400 text-lg mb-2'>
+                    <div className='bg-card p-12 rounded-lg shadow text-center'>
+                      <div className='text-muted-foreground text-lg mb-2'>
                         검색 결과가 없습니다
                       </div>
-                      <div className='text-gray-500 text-sm'>
+                      <div className='text-muted-foreground text-sm'>
                         다른 검색어나 필터를 시도해보세요
                       </div>
                     </div>

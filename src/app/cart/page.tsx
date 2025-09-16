@@ -102,15 +102,17 @@ export default function CartPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className='min-h-screen bg-gray-50'>
+      <div className='min-h-screen bg-background'>
         <Header />
         <div className='container mx-auto px-4 py-16'>
           <div className='text-center'>
-            <ShoppingCart className='mx-auto h-24 w-24 text-gray-400 mb-6' />
+            <ShoppingCart className='mx-auto h-24 w-24 text-muted-foreground mb-6' />
             <h2 className='text-2xl font-bold text-gray-600 mb-4'>
               장바구니가 비어있습니다
             </h2>
-            <p className='text-gray-500 mb-8'>다양한 액상을 둘러보세요!</p>
+            <p className='text-muted-foreground mb-8'>
+              다양한 액상을 둘러보세요!
+            </p>
             <Link
               href='/main'
               className='bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors'
@@ -125,7 +127,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-background'>
       <Header />
 
       <main className='container mx-auto px-4 py-8'>
@@ -137,17 +139,17 @@ export default function CartPage() {
 
           {/* 장바구니 메인 콘텐츠 */}
           <div className='flex-1'>
-            <div className='bg-white rounded-lg shadow-sm'>
+            <div className='bg-card rounded-lg shadow-sm'>
               {/* 헤더 */}
               <div className='p-6 border-b'>
-                <h1 className='text-2xl font-bold text-gray-900 flex items-center'>
+                <h1 className='text-2xl font-bold text-foreground flex items-center'>
                   <ShoppingCart className='mr-3 h-6 w-6' />
                   장바구니 ({getTotalItems()}개)
                 </h1>
               </div>
 
               {/* 전체 선택 */}
-              <div className='p-4 border-b bg-gray-50'>
+              <div className='p-4 border-b bg-background'>
                 <div className='flex items-center justify-between'>
                   <label className='flex items-center'>
                     <input
@@ -165,7 +167,7 @@ export default function CartPage() {
                   </label>
                   <button
                     onClick={clearCart}
-                    className='text-sm text-gray-500 hover:text-red-500 flex items-center'
+                    className='text-sm text-muted-foreground hover:text-red-500 flex items-center'
                   >
                     <Trash2 className='w-4 h-4 mr-1' />
                     전체삭제
@@ -199,10 +201,10 @@ export default function CartPage() {
 
                       {/* 상품 정보 */}
                       <div className='flex-1'>
-                        <h3 className='text-lg font-semibold text-gray-900'>
+                        <h3 className='text-lg font-semibold text-foreground'>
                           {item.name}
                         </h3>
-                        <p className='text-sm text-gray-500 mt-1'>
+                        <p className='text-sm text-muted-foreground mt-1'>
                           {item.brand}
                         </p>
                         <p className='text-lg font-bold text-green-600 mt-2'>
@@ -216,7 +218,7 @@ export default function CartPage() {
                           onClick={() =>
                             updateQuantity(item.productId, item.quantity - 1)
                           }
-                          className='w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100'
+                          className='w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-accent'
                         >
                           <Minus className='w-4 h-4' />
                         </button>
@@ -227,7 +229,7 @@ export default function CartPage() {
                           onClick={() =>
                             updateQuantity(item.productId, item.quantity + 1)
                           }
-                          className='w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100'
+                          className='w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-accent'
                         >
                           <Plus className='w-4 h-4' />
                         </button>
@@ -236,7 +238,7 @@ export default function CartPage() {
                       {/* 삭제 버튼 */}
                       <button
                         onClick={() => removeItem(item.productId)}
-                        className='text-gray-400 hover:text-red-500'
+                        className='text-muted-foreground hover:text-red-500'
                       >
                         <X className='w-5 h-5' />
                       </button>
@@ -249,7 +251,7 @@ export default function CartPage() {
 
           {/* 주문 요약 */}
           <div className='w-full lg:w-80'>
-            <div className='bg-white rounded-lg shadow-sm p-6 sticky top-4'>
+            <div className='bg-card rounded-lg shadow-sm p-6 sticky top-4'>
               <h2 className='text-lg font-bold mb-4'>주문 요약</h2>
 
               {/* 쿠폰 입력 */}
@@ -264,7 +266,7 @@ export default function CartPage() {
                   />
                   <button
                     onClick={applyCoupon}
-                    className='px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200'
+                    className='px-4 py-2 bg-accent text-foreground rounded-lg text-sm hover:bg-gray-200'
                   >
                     적용
                   </button>

@@ -65,7 +65,7 @@ export default function Home() {
   const { popularProducts, newProducts } = useProductStore();
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-background'>
       <Header />
       <Banner />
 
@@ -75,12 +75,12 @@ export default function Home() {
           <div className='w-full lg:w-64 space-y-6'>
             <SidebarAd position='left' />
 
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3'>필터</h3>
 
               <div className='space-y-4'>
                 <div>
-                  <h4 className='font-medium text-sm text-gray-700 mb-2'>
+                  <h4 className='font-medium text-sm text-foreground mb-2'>
                     브랜드
                   </h4>
                   <div className='space-y-1'>
@@ -132,7 +132,9 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <h4 className='font-medium text-sm text-gray-700 mb-2'>맛</h4>
+                  <h4 className='font-medium text-sm text-foreground mb-2'>
+                    맛
+                  </h4>
                   <div className='space-y-1'>
                     <label className='flex items-center'>
                       <input
@@ -182,7 +184,7 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <h4 className='font-medium text-sm text-gray-700 mb-2'>
+                  <h4 className='font-medium text-sm text-foreground mb-2'>
                     니코틴
                   </h4>
                   <div className='space-y-1'>
@@ -230,11 +232,11 @@ export default function Home() {
           {/* Main Content */}
           <div className='flex-1'>
             {/* Search and Sort */}
-            <div className='bg-white p-4 rounded-lg shadow mb-6'>
+            <div className='bg-card p-4 rounded-lg shadow mb-6'>
               <div className='flex flex-col sm:flex-row gap-4 items-center justify-between'>
                 <div className='flex items-center space-x-2 flex-1'>
                   <div className='relative flex-1'>
-                    <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4' />
+                    <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4' />
                     <input
                       type='text'
                       placeholder='제품명, 브랜드를 검색하세요'
@@ -258,7 +260,7 @@ export default function Home() {
                 </div>
 
                 <div className='flex items-center space-x-2'>
-                  <Filter className='w-4 h-4 text-gray-500' />
+                  <Filter className='w-4 h-4 text-muted-foreground' />
                   <select className='px-3 py-2 border border-gray-300 rounded-lg'>
                     <option>인기순</option>
                     <option>최신순</option>
@@ -268,7 +270,7 @@ export default function Home() {
                   </select>
                 </div>
 
-                <button className='px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors'>
+                <button className='px-4 py-2 bg-card text-foreground rounded-lg font-medium hover:bg-accent transition-colors border border-border'>
                   최저가 알림 설정
                 </button>
               </div>
@@ -278,13 +280,13 @@ export default function Home() {
             <div>
               {/* 검색/필터 결과 헤더 */}
               {(isSearching || hasActiveFilters) && (
-                <div className='bg-white p-4 rounded-lg shadow mb-6'>
+                <div className='bg-card p-4 rounded-lg shadow mb-6'>
                   <h3 className='font-bold text-lg flex items-center gap-2'>
                     <Search className='h-6 w-6 text-blue-500' />
                     {isSearching
                       ? `"${actualSearchQuery}" 검색 결과`
                       : '필터링된 상품'}
-                    <span className='text-sm font-normal text-gray-500'>
+                    <span className='text-sm font-normal text-muted-foreground'>
                       ({totalProducts}개)
                     </span>
                   </h3>
@@ -317,15 +319,15 @@ export default function Home() {
                   ))}
                 </div>
               ) : (
-                <div className='bg-white p-12 rounded-lg shadow text-center'>
-                  <div className='text-gray-400 text-lg mb-2'>
+                <div className='bg-card p-12 rounded-lg shadow text-center'>
+                  <div className='text-muted-foreground text-lg mb-2'>
                     {isSearching
                       ? '검색 결과가 없습니다'
                       : hasActiveFilters
                       ? '필터 조건에 맞는 상품이 없습니다'
                       : '상품이 없습니다'}
                   </div>
-                  <div className='text-gray-500 text-sm'>
+                  <div className='text-muted-foreground text-sm'>
                     {isSearching || hasActiveFilters
                       ? '다른 검색어나 필터 조건을 시도해보세요'
                       : '곧 새로운 상품을 준비하겠습니다'}
@@ -349,15 +351,15 @@ export default function Home() {
           <div className='w-full lg:w-64 space-y-6'>
             <SidebarAd position='right' />
 
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3'>가격 추이</h3>
               <PriceTrendChart />
-              <p className='text-xs text-gray-500 mt-2'>
+              <p className='text-xs text-muted-foreground mt-2'>
                 최근 30일 인기 제품 가격 변동
               </p>
             </div>
 
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3'>인기 제품</h3>
               <div className='space-y-3'>
                 {popularProducts.slice(0, 3).map((product, index) => (
@@ -368,10 +370,10 @@ export default function Home() {
                       </span>
                     </div>
                     <div className='flex-1 min-w-0'>
-                      <p className='text-sm font-medium text-gray-900 truncate'>
+                      <p className='text-sm font-medium text-foreground truncate'>
                         {product.name}
                       </p>
-                      <p className='text-xs text-gray-500'>
+                      <p className='text-xs text-muted-foreground'>
                         {product.price.toLocaleString()}원
                       </p>
                     </div>
@@ -380,7 +382,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3'>신제품</h3>
               <div className='space-y-3'>
                 {newProducts.slice(0, 3).map((product) => (
@@ -393,10 +395,10 @@ export default function Home() {
                       />
                     </div>
                     <div className='flex-1 min-w-0'>
-                      <p className='text-sm font-medium text-gray-900 truncate'>
+                      <p className='text-sm font-medium text-foreground truncate'>
                         {product.name}
                       </p>
-                      <p className='text-xs text-gray-500'>
+                      <p className='text-xs text-muted-foreground'>
                         {product.price.toLocaleString()}원
                       </p>
                       <span className='inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full'>
