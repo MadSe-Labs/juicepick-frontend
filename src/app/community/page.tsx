@@ -26,6 +26,9 @@ import {
 } from '@/lib/mockData';
 
 import { useCommunitySearch } from '@/hooks/useCommunitySearch';
+import { usePagination } from '@/hooks/usePagination';
+import LoadMoreButton from '@/components/load-more-button';
+import { CommunityPost } from '@/types/community';
 
 const hotTopics = [
   '니코틴 함량 선택법',
@@ -45,6 +48,21 @@ export default function Community() {
     isSearching,
     actualSearchQuery,
   } = useCommunitySearch(MOCK_COMMUNITY_POSTS);
+
+  // 페이지네이션 커스텀 훅 사용
+  const {
+    displayedItems: displayedProducts,
+    totalItems: totalProducts,
+    hasMoreItems: hasMoreProducts,
+    remainingCount,
+    isLoadingMore,
+    handleLoadMore,
+  } = usePagination({
+    items: searchResults,
+    itemsPerPage: 6,
+    dependencies: [searchResults],
+  });
+
   return (
     <div className='min-h-screen bg-gray-50'>
       <Header />
@@ -194,8 +212,8 @@ export default function Community() {
               )}
 
               {/* 게시글 목록 */}
-              {searchResults.length > 0 ? (
-                searchResults.map((post) => (
+              {displayedProducts.length > 0 ? (
+                displayedProducts.map((post: CommunityPost) => (
                   <div
                     key={post.id}
                     className='bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow'
@@ -278,11 +296,15 @@ export default function Community() {
             </div>
 
             {/* Load More Button */}
-            <div className='mt-8 text-center'>
-              <button className='px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium'>
-                더 많은 게시글 보기
-              </button>
-            </div>
+            {displayedProducts.length > 0 && (
+              <LoadMoreButton
+                hasMoreItems={hasMoreProducts}
+                isLoadingMore={isLoadingMore}
+                remainingCount={remainingCount}
+                totalItems={totalProducts}
+                onLoadMore={handleLoadMore}
+              />
+            )}
           </div>
 
           {/* Right Sidebar */}

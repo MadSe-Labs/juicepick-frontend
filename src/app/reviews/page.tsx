@@ -18,6 +18,9 @@ import Footer from '@/components/footer';
 import Image from 'next/image';
 import { MOCK_REVIEWS, MOCK_TOP_REVIEWERS, FILTER_TAGS } from '@/lib/mockData';
 import { useReviewSearch } from '@/hooks/useReviewSearch';
+import { usePagination } from '@/hooks/usePagination';
+import { Review } from '@/types/review';
+import LoadMoreButton from '@/components/load-more-button';
 
 export default function Reviews() {
   // 리뷰 검색/필터 훅 사용
@@ -36,6 +39,20 @@ export default function Reviews() {
     toggleVerifiedOnly,
     hasActiveFilters,
   } = useReviewSearch(MOCK_REVIEWS);
+
+  // 페이지네이션 커스텀 훅 사용
+  const {
+    displayedItems: displayedProducts,
+    totalItems: totalProducts,
+    hasMoreItems: hasMoreProducts,
+    remainingCount,
+    isLoadingMore,
+    handleLoadMore,
+  } = usePagination({
+    items: searchResults,
+    itemsPerPage: 6,
+    dependencies: [searchResults],
+  });
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -265,8 +282,8 @@ export default function Reviews() {
               )}
 
               {/* 리뷰 목록 */}
-              {searchResults.length > 0 ? (
-                searchResults.map((review) => (
+              {displayedProducts.length > 0 ? (
+                displayedProducts.map((review: Review) => (
                   <div
                     key={review.id}
                     className='bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow'
@@ -414,11 +431,15 @@ export default function Reviews() {
             </div>
 
             {/* Load More Button */}
-            <div className='mt-8 text-center'>
-              <button className='px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium'>
-                더 많은 리뷰 보기
-              </button>
-            </div>
+            {displayedProducts.length > 0 && (
+              <LoadMoreButton
+                hasMoreItems={hasMoreProducts}
+                isLoadingMore={isLoadingMore}
+                remainingCount={remainingCount}
+                totalItems={totalProducts}
+                onLoadMore={handleLoadMore}
+              />
+            )}
           </div>
 
           {/* Right Sidebar */}
