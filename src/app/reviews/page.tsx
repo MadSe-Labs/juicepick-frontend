@@ -66,7 +66,7 @@ export default function Reviews() {
   };
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-background'>
       <Header />
       <Banner />
 
@@ -77,7 +77,7 @@ export default function Reviews() {
             <SidebarAd position='left' />
 
             {/* Filter Tags */}
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3'>태그 필터</h3>
               <div className='flex flex-wrap gap-2'>
                 {FILTER_TAGS.map((tag, index) => (
@@ -90,10 +90,10 @@ export default function Reviews() {
                       tag === '전체'
                         ? selectedTags.length === 0
                           ? 'bg-green-500 text-white border-green-500'
-                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          : 'bg-card text-foreground border-gray-300 hover:bg-background'
                         : selectedTags.includes(tag)
                         ? 'bg-green-500 text-white border-green-500'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        : 'bg-card text-foreground border-gray-300 hover:bg-background'
                     }`}
                   >
                     {tag}
@@ -103,7 +103,7 @@ export default function Reviews() {
             </div>
 
             {/* Rating Filter */}
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3'>평점 필터</h3>
               <div className='space-y-2'>
                 {[5, 4, 3, 2, 1].map((rating) => (
@@ -134,7 +134,7 @@ export default function Reviews() {
                     checked={showVerifiedOnly}
                     onChange={toggleVerifiedOnly}
                   />
-                  <span className='text-sm text-gray-700'>
+                  <span className='text-sm text-foreground'>
                     검증된 리뷰만 보기
                   </span>
                 </label>
@@ -142,7 +142,7 @@ export default function Reviews() {
             </div>
 
             {/* Top Reviewers */}
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3 flex items-center gap-2'>
                 <Award className='h-5 w-5 text-yellow-500' />
                 베스트 리뷰어
@@ -162,7 +162,7 @@ export default function Reviews() {
                             ? 'bg-gray-400 text-white'
                             : index === 2
                             ? 'bg-orange-500 text-white'
-                            : 'bg-gray-100 text-gray-600'
+                            : 'bg-accent text-gray-600'
                         }`}
                       >
                         {index + 1}
@@ -171,7 +171,7 @@ export default function Reviews() {
                         {reviewer.name}
                       </span>
                     </div>
-                    <div className='text-xs text-gray-500'>
+                    <div className='text-xs text-muted-foreground'>
                       <div>{reviewer.reviews}개 리뷰</div>
                       <div>도움 {reviewer.helpful}</div>
                     </div>
@@ -185,7 +185,7 @@ export default function Reviews() {
           <div className='flex-1'>
             {/* Page Title */}
             <div className='mb-6'>
-              <h1 className='text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3'>
+              <h1 className='text-3xl font-bold text-foreground mb-2 flex items-center gap-3'>
                 <MessageCircle className='h-8 w-8 text-green-500' />
                 리뷰
               </h1>
@@ -195,7 +195,7 @@ export default function Reviews() {
             </div>
 
             {/* Search and Sort */}
-            <div className='bg-white p-4 rounded-lg shadow mb-6'>
+            <div className='bg-card p-4 rounded-lg shadow mb-6'>
               <div className='flex flex-col sm:flex-row gap-4'>
                 <div className='relative flex-1'>
                   <input
@@ -211,7 +211,7 @@ export default function Reviews() {
                     }}
                     className='w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500'
                   />
-                  <Search className='absolute left-3 top-2.5 h-5 w-5 text-gray-400' />
+                  <Search className='absolute left-3 top-2.5 h-5 w-5 text-muted-foreground' />
                 </div>
                 <div className='flex gap-2'>
                   <button
@@ -220,11 +220,11 @@ export default function Reviews() {
                   >
                     검색
                   </button>
-                  <button className='flex items-center gap-1 px-4 py-2 bg-white border rounded-lg hover:bg-gray-50'>
+                  <button className='flex items-center gap-1 px-4 py-2 bg-card border rounded-lg hover:bg-background'>
                     <Filter className='h-4 w-4' />
                     <span>필터</span>
                   </button>
-                  <button className='flex items-center gap-1 px-4 py-2 bg-white border rounded-lg hover:bg-gray-50'>
+                  <button className='flex items-center gap-1 px-4 py-2 bg-card border rounded-lg hover:bg-background'>
                     <span>도움순</span>
                     <ChevronDown className='h-4 w-4' />
                   </button>
@@ -268,13 +268,13 @@ export default function Reviews() {
             <div className='space-y-6'>
               {/* 검색/필터 결과 헤더 */}
               {(isSearching || hasActiveFilters) && (
-                <div className='bg-white p-4 rounded-lg shadow mb-6'>
+                <div className='bg-card p-4 rounded-lg shadow mb-6'>
                   <h3 className='font-bold text-lg flex items-center gap-2'>
                     <Search className='h-6 w-6 text-green-500' />
                     {isSearching
                       ? `"${actualSearchQuery}" 검색 결과`
                       : '필터링된 리뷰'}
-                    <span className='text-sm font-normal text-gray-500'>
+                    <span className='text-sm font-normal text-muted-foreground'>
                       ({searchResults.length}개)
                     </span>
                   </h3>
@@ -286,7 +286,7 @@ export default function Reviews() {
                 displayedProducts.map((review: Review) => (
                   <div
                     key={review.id}
-                    className='bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow'
+                    className='bg-card p-6 rounded-lg shadow hover:shadow-md transition-shadow'
                   >
                     {/* Review Header */}
                     <div className='flex items-start gap-4 mb-4'>
@@ -299,7 +299,7 @@ export default function Reviews() {
                       />
                       <div className='flex-1'>
                         <div className='flex items-center justify-between mb-2'>
-                          <h3 className='text-lg font-bold text-gray-900'>
+                          <h3 className='text-lg font-bold text-foreground'>
                             {review.productName}
                           </h3>
                           {review.verified && (
@@ -312,12 +312,12 @@ export default function Reviews() {
                           <div className='flex items-center'>
                             {renderStars(review.rating)}
                           </div>
-                          <span className='text-sm font-bold text-gray-900'>
+                          <span className='text-sm font-bold text-foreground'>
                             {review.rating}.0
                           </span>
                         </div>
-                        <div className='flex items-center gap-4 text-sm text-gray-500'>
-                          <span className='font-medium text-gray-700'>
+                        <div className='flex items-center gap-4 text-sm text-muted-foreground'>
+                          <span className='font-medium text-foreground'>
                             {review.author}
                           </span>
                           <div className='flex items-center gap-1'>
@@ -329,10 +329,10 @@ export default function Reviews() {
                     </div>
 
                     {/* Review Content */}
-                    <h4 className='text-lg font-semibold text-gray-900 mb-2'>
+                    <h4 className='text-lg font-semibold text-foreground mb-2'>
                       {review.title}
                     </h4>
-                    <p className='text-gray-700 mb-4 leading-relaxed'>
+                    <p className='text-foreground mb-4 leading-relaxed'>
                       {review.content}
                     </p>
 
@@ -383,7 +383,7 @@ export default function Reviews() {
                       {review.tags.map((tag, index) => (
                         <span
                           key={index}
-                          className='bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full'
+                          className='bg-accent text-foreground text-xs px-2 py-1 rounded-full'
                         >
                           #{tag}
                         </span>
@@ -406,22 +406,22 @@ export default function Reviews() {
                           <span>댓글 ({review.comments})</span>
                         </button>
                       </div>
-                      <button className='text-sm text-gray-500 hover:text-gray-700 transition-colors'>
+                      <button className='text-sm text-muted-foreground hover:text-foreground transition-colors'>
                         신고하기
                       </button>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className='bg-white p-12 rounded-lg shadow text-center'>
-                  <div className='text-gray-400 text-lg mb-2'>
+                <div className='bg-card p-12 rounded-lg shadow text-center'>
+                  <div className='text-muted-foreground text-lg mb-2'>
                     {isSearching
                       ? '검색 결과가 없습니다'
                       : hasActiveFilters
                       ? '필터 조건에 맞는 리뷰가 없습니다'
                       : '리뷰가 없습니다'}
                   </div>
-                  <div className='text-gray-500 text-sm'>
+                  <div className='text-muted-foreground text-sm'>
                     {isSearching || hasActiveFilters
                       ? '다른 검색어나 필터 조건을 시도해보세요'
                       : '첫 번째 리뷰를 작성해보세요'}

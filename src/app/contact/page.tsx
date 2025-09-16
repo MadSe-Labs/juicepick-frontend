@@ -110,7 +110,7 @@ export default function Contact() {
   };
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-background'>
       <Header />
       <Banner />
 
@@ -121,7 +121,7 @@ export default function Contact() {
             <SidebarAd position='left' />
 
             {/* Quick FAQ */}
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3'>자주 묻는 질문</h3>
               <div className='space-y-3'>
                 {quickFaqs.map((faq, index) => (
@@ -141,7 +141,7 @@ export default function Contact() {
             </div>
 
             {/* Business Hours */}
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3 flex items-center gap-2'>
                 <Clock className='h-5 w-5 text-blue-500' />
                 운영 시간
@@ -160,7 +160,7 @@ export default function Contact() {
                   <span className='text-red-500'>휴무</span>
                 </div>
                 <div className='mt-3 pt-3 border-t border-gray-100'>
-                  <p className='text-xs text-gray-500'>
+                  <p className='text-xs text-muted-foreground'>
                     점심시간: 12:00 - 13:00
                     <br />
                     이메일 문의는 24시간 접수
@@ -174,7 +174,7 @@ export default function Contact() {
           <div className='flex-1'>
             {/* Page Title */}
             <div className='mb-6'>
-              <h1 className='text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3'>
+              <h1 className='text-3xl font-bold text-foreground mb-2 flex items-center gap-3'>
                 <MessageSquare className='h-8 w-8 text-blue-500' />
                 문의하기
               </h1>
@@ -189,12 +189,12 @@ export default function Contact() {
               {contactInfo.map((info, index) => (
                 <div
                   key={index}
-                  className='bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow'
+                  className='bg-card p-6 rounded-lg shadow hover:shadow-md transition-shadow'
                 >
                   <div className='flex items-start gap-4'>
                     <div className='text-blue-500 mt-1'>{info.icon}</div>
                     <div className='flex-1'>
-                      <h3 className='text-lg font-semibold text-gray-900 mb-1'>
+                      <h3 className='text-lg font-semibold text-foreground mb-1'>
                         {info.title}
                       </h3>
                       <p className='text-gray-800 font-medium mb-1'>
@@ -213,8 +213,8 @@ export default function Contact() {
             </div>
 
             {/* Contact Form */}
-            <div className='bg-white p-6 rounded-lg shadow'>
-              <h2 className='text-xl font-bold text-gray-900 mb-6'>
+            <div className='bg-card p-6 rounded-lg shadow'>
+              <h2 className='text-xl font-bold text-foreground mb-6'>
                 온라인 문의
               </h2>
 
@@ -222,7 +222,7 @@ export default function Contact() {
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                   {/* 이름 */}
                   <div>
-                    <label className='flex items-center gap-2 text-sm font-medium text-gray-700 mb-2'>
+                    <label className='flex items-center gap-2 text-sm font-medium text-foreground mb-2'>
                       <User className='h-4 w-4' />
                       이름 <span className='text-red-500'>*</span>
                     </label>
@@ -239,7 +239,7 @@ export default function Contact() {
 
                   {/* 이메일 */}
                   <div>
-                    <label className='flex items-center gap-2 text-sm font-medium text-gray-700 mb-2'>
+                    <label className='flex items-center gap-2 text-sm font-medium text-foreground mb-2'>
                       <Mail className='h-4 w-4' />
                       이메일 <span className='text-red-500'>*</span>
                     </label>
@@ -258,7 +258,7 @@ export default function Contact() {
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                   {/* 연락처 */}
                   <div>
-                    <label className='flex items-center gap-2 text-sm font-medium text-gray-700 mb-2'>
+                    <label className='flex items-center gap-2 text-sm font-medium text-foreground mb-2'>
                       <Phone className='h-4 w-4' />
                       연락처
                     </label>
@@ -274,7 +274,7 @@ export default function Contact() {
 
                   {/* 문의 유형 */}
                   <div>
-                    <label className='flex items-center gap-2 text-sm font-medium text-gray-700 mb-2'>
+                    <label className='flex items-center gap-2 text-sm font-medium text-foreground mb-2'>
                       <Tag className='h-4 w-4' />
                       문의 유형 <span className='text-red-500'>*</span>
                     </label>
@@ -297,7 +297,7 @@ export default function Contact() {
 
                 {/* 제목 */}
                 <div>
-                  <label className='flex items-center gap-2 text-sm font-medium text-gray-700 mb-2'>
+                  <label className='flex items-center gap-2 text-sm font-medium text-foreground mb-2'>
                     <FileText className='h-4 w-4' />
                     제목 <span className='text-red-500'>*</span>
                   </label>
@@ -314,7 +314,7 @@ export default function Contact() {
 
                 {/* 내용 */}
                 <div>
-                  <label className='flex items-center gap-2 text-sm font-medium text-gray-700 mb-2'>
+                  <label className='flex items-center gap-2 text-sm font-medium text-foreground mb-2'>
                     <MessageSquare className='h-4 w-4' />
                     문의 내용 <span className='text-red-500'>*</span>
                   </label>
@@ -330,10 +330,10 @@ export default function Contact() {
                 </div>
 
                 {/* 개인정보 처리 동의 */}
-                <div className='bg-gray-50 p-4 rounded-lg'>
+                <div className='bg-background p-4 rounded-lg'>
                   <label className='flex items-start gap-3'>
                     <input type='checkbox' required className='mt-1' />
-                    <span className='text-sm text-gray-700'>
+                    <span className='text-sm text-foreground'>
                       <strong>개인정보 수집 및 이용에 동의합니다.</strong>
                       <br />
                       수집항목: 이름, 이메일, 연락처, 문의내용

@@ -161,7 +161,7 @@ export default function FAQ() {
       ) || [];
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-background'>
       <Header />
       <Banner />
 
@@ -172,7 +172,7 @@ export default function FAQ() {
             <SidebarAd position='left' />
 
             {/* FAQ Categories */}
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3'>카테고리</h3>
               <div className='space-y-2'>
                 {faqCategories.map((category) => (
@@ -182,7 +182,7 @@ export default function FAQ() {
                     className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       selectedCategory === category.id
                         ? category.color
-                        : 'text-gray-600 hover:bg-gray-50'
+                        : 'text-gray-600 hover:bg-background'
                     }`}
                   >
                     {category.name} ({category.faqs.length})
@@ -192,18 +192,20 @@ export default function FAQ() {
             </div>
 
             {/* Quick Help */}
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3'>빠른 도움</h3>
               <div className='space-y-4'>
                 {quickHelp.map((item, index) => (
                   <div key={index} className='flex items-start gap-3'>
                     <div className='text-blue-500 mt-1'>{item.icon}</div>
                     <div>
-                      <h4 className='text-sm font-medium text-gray-900'>
+                      <h4 className='text-sm font-medium text-foreground'>
                         {item.title}
                       </h4>
-                      <p className='text-sm text-gray-700'>{item.content}</p>
-                      <p className='text-xs text-gray-500'>{item.subContent}</p>
+                      <p className='text-sm text-foreground'>{item.content}</p>
+                      <p className='text-xs text-muted-foreground'>
+                        {item.subContent}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -215,7 +217,7 @@ export default function FAQ() {
           <div className='flex-1'>
             {/* Page Title */}
             <div className='mb-6'>
-              <h1 className='text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3'>
+              <h1 className='text-3xl font-bold text-foreground mb-2 flex items-center gap-3'>
                 <HelpCircle className='h-8 w-8 text-blue-500' />
                 자주 묻는 질문
               </h1>
@@ -226,7 +228,7 @@ export default function FAQ() {
             </div>
 
             {/* Search */}
-            <div className='bg-white p-4 rounded-lg shadow mb-6'>
+            <div className='bg-card p-4 rounded-lg shadow mb-6'>
               <div className='relative'>
                 <input
                   type='text'
@@ -235,7 +237,7 @@ export default function FAQ() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className='w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
                 />
-                <Search className='absolute left-3 top-2.5 h-5 w-5 text-gray-400' />
+                <Search className='absolute left-3 top-2.5 h-5 w-5 text-muted-foreground' />
               </div>
             </div>
 
@@ -276,10 +278,10 @@ export default function FAQ() {
             {/* FAQ List */}
             <div className='space-y-4'>
               {filteredFaqs.length === 0 ? (
-                <div className='bg-white p-8 rounded-lg shadow text-center'>
+                <div className='bg-card p-8 rounded-lg shadow text-center'>
                   <HelpCircle className='h-12 w-12 text-gray-300 mx-auto mb-4' />
-                  <p className='text-gray-500'>검색 결과가 없습니다.</p>
-                  <p className='text-sm text-gray-400 mt-2'>
+                  <p className='text-muted-foreground'>검색 결과가 없습니다.</p>
+                  <p className='text-sm text-muted-foreground mt-2'>
                     다른 키워드로 검색하거나 카테고리를 변경해보세요.
                   </p>
                 </div>
@@ -287,25 +289,25 @@ export default function FAQ() {
                 filteredFaqs.map((faq) => (
                   <div
                     key={faq.id}
-                    className='bg-white rounded-lg shadow overflow-hidden'
+                    className='bg-card rounded-lg shadow overflow-hidden'
                   >
                     <button
                       onClick={() => toggleItem(faq.id)}
-                      className='w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors'
+                      className='w-full px-6 py-4 text-left flex items-center justify-between hover:bg-background transition-colors'
                     >
-                      <h3 className='text-lg font-medium text-gray-900 pr-4'>
+                      <h3 className='text-lg font-medium text-foreground pr-4'>
                         {faq.question}
                       </h3>
                       {openItems.includes(faq.id) ? (
-                        <ChevronUp className='h-5 w-5 text-gray-500 flex-shrink-0' />
+                        <ChevronUp className='h-5 w-5 text-muted-foreground flex-shrink-0' />
                       ) : (
-                        <ChevronDown className='h-5 w-5 text-gray-500 flex-shrink-0' />
+                        <ChevronDown className='h-5 w-5 text-muted-foreground flex-shrink-0' />
                       )}
                     </button>
 
                     {openItems.includes(faq.id) && (
                       <div className='px-6 pb-4 border-t border-gray-100'>
-                        <p className='text-gray-700 leading-relaxed pt-4'>
+                        <p className='text-foreground leading-relaxed pt-4'>
                           {faq.answer}
                         </p>
                       </div>
@@ -316,8 +318,8 @@ export default function FAQ() {
             </div>
 
             {/* Contact Section */}
-            <div className='mt-8 bg-white p-6 rounded-lg shadow'>
-              <h3 className='text-xl font-bold text-gray-900 mb-4'>
+            <div className='mt-8 bg-card p-6 rounded-lg shadow'>
+              <h3 className='text-xl font-bold text-foreground mb-4'>
                 원하는 답을 찾지 못하셨나요?
               </h3>
               <p className='text-gray-600 mb-4'>
@@ -328,7 +330,7 @@ export default function FAQ() {
                 <button className='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors'>
                   문의하기
                 </button>
-                <button className='px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors'>
+                <button className='px-4 py-2 bg-accent text-foreground rounded-lg hover:bg-gray-200 transition-colors'>
                   실시간 채팅
                 </button>
               </div>

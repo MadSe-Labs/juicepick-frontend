@@ -64,7 +64,7 @@ export default function Community() {
   });
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-background'>
       <Header />
       <Banner />
 
@@ -75,7 +75,7 @@ export default function Community() {
             <SidebarAd position='left' />
 
             {/* Categories */}
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3'>카테고리</h3>
               <div className='space-y-2'>
                 {MOCK_COMMUNITY_CATEGORIES.map((category, index) => (
@@ -95,7 +95,7 @@ export default function Community() {
             </div>
 
             {/* Hot Topics */}
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3 flex items-center gap-2'>
                 <Flame className='h-5 w-5 text-red-500' />
                 핫토픽
@@ -104,7 +104,7 @@ export default function Community() {
                 {hotTopics.map((topic, index) => (
                   <button
                     key={index}
-                    className='w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors'
+                    className='w-full text-left px-3 py-2 text-sm text-foreground hover:bg-accent rounded-lg transition-colors'
                   >
                     #{topic}
                   </button>
@@ -117,17 +117,17 @@ export default function Community() {
           <div className='flex-1'>
             {/* Page Title */}
             <div className='mb-6'>
-              <h1 className='text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3'>
+              <h1 className='text-3xl font-bold text-foreground mb-2 flex items-center gap-3'>
                 <MessageSquare className='h-8 w-8 text-blue-500' />
                 커뮤니티
               </h1>
-              <p className='text-gray-600'>
+              <p className='text-muted-foreground'>
                 액상 애호가들과 함께 정보를 공유하고 소통해보세요.
               </p>
             </div>
 
             {/* Search and Actions */}
-            <div className='bg-white p-4 rounded-lg shadow mb-6'>
+            <div className='bg-card p-4 rounded-lg shadow mb-6'>
               <div className='flex flex-col sm:flex-row gap-4'>
                 <div className='relative flex-1'>
                   <input
@@ -143,7 +143,7 @@ export default function Community() {
                     }}
                     className='w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
                   />
-                  <Search className='absolute left-3 top-2.5 h-5 w-5 text-gray-400' />
+                  <Search className='absolute left-3 top-2.5 h-5 w-5 text-muted-foreground' />
                 </div>
                 <div className='flex gap-2'>
                   <button
@@ -152,11 +152,11 @@ export default function Community() {
                   >
                     검색
                   </button>
-                  <button className='flex items-center gap-1 px-4 py-2 bg-white border rounded-lg hover:bg-gray-50'>
+                  <button className='flex items-center gap-1 px-4 py-2 bg-card border border-border rounded-lg hover:bg-accent'>
                     <Filter className='h-4 w-4' />
                     <span>필터</span>
                   </button>
-                  <button className='flex items-center gap-1 px-4 py-2 bg-white border rounded-lg hover:bg-gray-50'>
+                  <button className='flex items-center gap-1 px-4 py-2 bg-card border border-border rounded-lg hover:bg-accent'>
                     <span>최신순</span>
                     <ChevronDown className='h-4 w-4' />
                   </button>
@@ -200,11 +200,11 @@ export default function Community() {
             <div className='space-y-4'>
               {/* 검색 결과 헤더 */}
               {isSearching && (
-                <div className='bg-white p-4 rounded-lg shadow mb-4'>
+                <div className='bg-card p-4 rounded-lg shadow mb-4'>
                   <h3 className='font-bold text-lg flex items-center gap-2'>
                     <Search className='h-5 w-5 text-blue-500' />"
                     {actualSearchQuery}" 검색 결과
-                    <span className='text-sm font-normal text-gray-500'>
+                    <span className='text-sm font-normal text-muted-foreground'>
                       ({searchResults.length}개)
                     </span>
                   </h3>
@@ -216,7 +216,7 @@ export default function Community() {
                 displayedProducts.map((post: CommunityPost) => (
                   <div
                     key={post.id}
-                    className='bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow'
+                    className='bg-card p-6 rounded-lg shadow hover:shadow-md transition-shadow'
                   >
                     <div className='flex items-start justify-between mb-3'>
                       <div className='flex items-center gap-3'>
@@ -244,13 +244,13 @@ export default function Community() {
                           {post.category}
                         </span>
                       </div>
-                      <div className='flex items-center gap-2 text-xs text-gray-500'>
+                      <div className='flex items-center gap-2 text-xs text-muted-foreground'>
                         <Clock className='h-3 w-3' />
                         <span>{post.createdAt}</span>
                       </div>
                     </div>
 
-                    <h3 className='text-lg font-bold text-gray-900 mb-2 hover:text-blue-600 cursor-pointer'>
+                    <h3 className='text-lg font-bold text-foreground mb-2 hover:text-blue-600 cursor-pointer'>
                       {post.title}
                     </h3>
 
@@ -259,8 +259,8 @@ export default function Community() {
                     </p>
 
                     <div className='flex items-center justify-between'>
-                      <div className='flex items-center gap-4 text-sm text-gray-500'>
-                        <span className='font-medium text-gray-700'>
+                      <div className='flex items-center gap-4 text-sm text-muted-foreground'>
+                        <span className='font-medium text-foreground'>
                           {post.author}
                         </span>
                         <div className='flex items-center gap-4'>
@@ -282,11 +282,11 @@ export default function Community() {
                   </div>
                 ))
               ) : (
-                <div className='bg-white p-12 rounded-lg shadow text-center'>
-                  <div className='text-gray-400 text-lg mb-2'>
+                <div className='bg-card p-12 rounded-lg shadow text-center'>
+                  <div className='text-muted-foreground text-lg mb-2'>
                     {isSearching ? '검색 결과가 없습니다' : '게시글이 없습니다'}
                   </div>
-                  <div className='text-gray-500 text-sm'>
+                  <div className='text-muted-foreground text-sm'>
                     {isSearching
                       ? '다른 검색어를 시도해보세요'
                       : '첫 번째 게시글을 작성해보세요'}
@@ -312,7 +312,7 @@ export default function Community() {
             <SidebarAd position='right' />
 
             {/* Popular Posts */}
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3 flex items-center gap-2'>
                 <Award className='h-5 w-5 text-yellow-500' />
                 인기글
@@ -328,7 +328,7 @@ export default function Community() {
                           ? 'bg-gray-400 text-white'
                           : index === 2
                           ? 'bg-orange-500 text-white'
-                          : 'bg-gray-100 text-gray-600'
+                          : 'bg-accent text-gray-600'
                       }`}
                     >
                       {index + 1}
@@ -337,7 +337,7 @@ export default function Community() {
                       <h4 className='text-sm font-medium text-gray-800 hover:text-blue-600 cursor-pointer line-clamp-2'>
                         {post.title}
                       </h4>
-                      <div className='flex items-center gap-2 text-xs text-gray-500 mt-1'>
+                      <div className='flex items-center gap-2 text-xs text-muted-foreground mt-1'>
                         <Heart className='h-3 w-3' />
                         <span>{post.likes}</span>
                         <MessageCircle className='h-3 w-3' />
@@ -350,7 +350,7 @@ export default function Community() {
             </div>
 
             {/* Community Rules */}
-            <div className='bg-white p-4 rounded-lg shadow'>
+            <div className='bg-card p-4 rounded-lg shadow'>
               <h3 className='font-bold text-lg mb-3'>커뮤니티 규칙</h3>
               <div className='text-sm text-gray-600 space-y-2'>
                 <p>• 서로 존중하는 마음으로 소통해주세요</p>

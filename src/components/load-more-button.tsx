@@ -42,8 +42,10 @@ const LoadMoreButton = ({
         </button>
       ) : (
         <div className='py-4'>
-          <p className='text-gray-500 mb-2'>🎉 모든 상품을 확인했습니다!</p>
-          <p className='text-sm text-gray-400'>
+          <p className='text-muted-foreground mb-2'>
+            🎉 모든 상품을 확인했습니다!
+          </p>
+          <p className='text-sm text-muted-foreground'>
             총 {totalItems}개의 상품을 둘러보셨어요
           </p>
         </div>

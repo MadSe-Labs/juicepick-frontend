@@ -72,7 +72,7 @@ export default function ProfilePage() {
 
   if (!session) {
     return (
-      <div className='min-h-screen bg-gray-50'>
+      <div className='min-h-screen bg-background'>
         <Header />
         <div className='container mx-auto px-4 py-16 text-center'>
           <h2 className='text-2xl font-bold text-gray-600 mb-4'>
@@ -148,7 +148,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-background'>
       <Header />
 
       <main className='container mx-auto px-4 py-8'>
@@ -161,17 +161,19 @@ export default function ProfilePage() {
           {/* 프로필 메인 콘텐츠 */}
           <div className='flex-1 max-w-4xl'>
             {/* 프로필 헤더 */}
-            <div className='bg-white rounded-lg shadow-sm p-6 mb-6'>
+            <div className='bg-card rounded-lg shadow-sm p-6 mb-6'>
               <div className='flex items-center justify-between mb-6'>
                 <div className='flex items-center space-x-4'>
                   <div className='w-16 h-16 bg-green-100 rounded-full flex items-center justify-center'>
                     <User className='w-8 h-8 text-green-600' />
                   </div>
                   <div>
-                    <h1 className='text-2xl font-bold text-gray-900'>
+                    <h1 className='text-2xl font-bold text-foreground'>
                       {currentProfile.name}
                     </h1>
-                    <p className='text-gray-500'>{currentProfile.email}</p>
+                    <p className='text-muted-foreground'>
+                      {currentProfile.email}
+                    </p>
                   </div>
                 </div>
 
@@ -195,7 +197,7 @@ export default function ProfilePage() {
                       </button>
                       <button
                         onClick={handleCancel}
-                        className='flex items-center px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400'
+                        className='flex items-center px-4 py-2 bg-gray-300 text-foreground rounded-lg hover:bg-gray-400'
                       >
                         <X className='w-4 h-4 mr-2' />
                         취소
@@ -208,7 +210,7 @@ export default function ProfilePage() {
 
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
               {/* 기본 정보 */}
-              <div className='lg:col-span-2 bg-white rounded-lg shadow-sm p-6'>
+              <div className='lg:col-span-2 bg-card rounded-lg shadow-sm p-6'>
                 <h2 className='text-lg font-semibold mb-4 flex items-center'>
                   <User className='w-5 h-5 mr-2' />
                   기본 정보
@@ -216,7 +218,7 @@ export default function ProfilePage() {
 
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-sm font-medium text-foreground mb-1'>
                       이름
                     </label>
                     {isEditing ? (
@@ -229,22 +231,22 @@ export default function ProfilePage() {
                         className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
                       />
                     ) : (
-                      <p className='text-gray-900'>{currentProfile.name}</p>
+                      <p className='text-foreground'>{currentProfile.name}</p>
                     )}
                   </div>
 
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-sm font-medium text-foreground mb-1'>
                       이메일
                     </label>
                     <div className='flex items-center'>
-                      <Mail className='w-4 h-4 text-gray-400 mr-2' />
-                      <p className='text-gray-900'>{currentProfile.email}</p>
+                      <Mail className='w-4 h-4 text-muted-foreground mr-2' />
+                      <p className='text-foreground'>{currentProfile.email}</p>
                     </div>
                   </div>
 
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-sm font-medium text-foreground mb-1'>
                       전화번호
                     </label>
                     {isEditing ? (
@@ -258,14 +260,16 @@ export default function ProfilePage() {
                       />
                     ) : (
                       <div className='flex items-center'>
-                        <Phone className='w-4 h-4 text-gray-400 mr-2' />
-                        <p className='text-gray-900'>{currentProfile.phone}</p>
+                        <Phone className='w-4 h-4 text-muted-foreground mr-2' />
+                        <p className='text-foreground'>
+                          {currentProfile.phone}
+                        </p>
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-sm font-medium text-foreground mb-1'>
                       생년월일
                     </label>
                     {isEditing ? (
@@ -279,8 +283,8 @@ export default function ProfilePage() {
                       />
                     ) : (
                       <div className='flex items-center'>
-                        <Calendar className='w-4 h-4 text-gray-400 mr-2' />
-                        <p className='text-gray-900'>
+                        <Calendar className='w-4 h-4 text-muted-foreground mr-2' />
+                        <p className='text-foreground'>
                           {currentProfile.birthDate}
                         </p>
                       </div>
@@ -288,7 +292,7 @@ export default function ProfilePage() {
                   </div>
 
                   <div className='md:col-span-2'>
-                    <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    <label className='block text-sm font-medium text-foreground mb-1'>
                       주소
                     </label>
                     {isEditing ? (
@@ -323,14 +327,14 @@ export default function ProfilePage() {
                       </div>
                     ) : (
                       <div className='flex items-start'>
-                        <MapPin className='w-4 h-4 text-gray-400 mr-2 mt-1' />
+                        <MapPin className='w-4 h-4 text-muted-foreground mr-2 mt-1' />
                         <div>
-                          <p className='text-gray-900'>
+                          <p className='text-foreground'>
                             ({currentProfile.address.zipCode}){' '}
                             {currentProfile.address.address}
                           </p>
                           {currentProfile.address.detailAddress && (
-                            <p className='text-gray-900'>
+                            <p className='text-foreground'>
                               {currentProfile.address.detailAddress}
                             </p>
                           )}
@@ -366,7 +370,7 @@ export default function ProfilePage() {
                         disabled={!isEditing}
                         className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
                       />
-                      <span className='ml-2 text-sm text-gray-700'>
+                      <span className='ml-2 text-sm text-foreground'>
                         이메일 뉴스레터
                       </span>
                     </label>
@@ -389,7 +393,7 @@ export default function ProfilePage() {
                         disabled={!isEditing}
                         className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
                       />
-                      <span className='ml-2 text-sm text-gray-700'>
+                      <span className='ml-2 text-sm text-foreground'>
                         SMS 마케팅
                       </span>
                     </label>
@@ -412,7 +416,7 @@ export default function ProfilePage() {
                         disabled={!isEditing}
                         className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
                       />
-                      <span className='ml-2 text-sm text-gray-700'>
+                      <span className='ml-2 text-sm text-foreground'>
                         푸시 알림
                       </span>
                     </label>
@@ -421,7 +425,7 @@ export default function ProfilePage() {
               </div>
 
               {/* 최근 활동 */}
-              <div className='bg-white rounded-lg shadow-sm p-6'>
+              <div className='bg-card rounded-lg shadow-sm p-6'>
                 <h2 className='text-lg font-semibold mb-4 flex items-center'>
                   <Settings className='w-5 h-5 mr-2' />
                   최근 활동
@@ -434,10 +438,12 @@ export default function ProfilePage() {
                         <div className='text-green-600'>{activity.icon}</div>
                       </div>
                       <div className='flex-1 min-w-0'>
-                        <p className='text-sm font-medium text-gray-900'>
+                        <p className='text-sm font-medium text-foreground'>
                           {activity.content}
                         </p>
-                        <p className='text-xs text-gray-500'>{activity.date}</p>
+                        <p className='text-xs text-muted-foreground'>
+                          {activity.date}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -451,20 +457,20 @@ export default function ProfilePage() {
                   </h3>
 
                   <div className='space-y-3'>
-                    <button className='w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50'>
-                      <div className='text-sm font-medium text-gray-900'>
+                    <button className='w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-background'>
+                      <div className='text-sm font-medium text-foreground'>
                         비밀번호 변경
                       </div>
-                      <div className='text-xs text-gray-500'>
+                      <div className='text-xs text-muted-foreground'>
                         계정 보안을 위해 정기적으로 변경해주세요
                       </div>
                     </button>
 
-                    <button className='w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50'>
-                      <div className='text-sm font-medium text-gray-900'>
+                    <button className='w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-background'>
+                      <div className='text-sm font-medium text-foreground'>
                         2단계 인증
                       </div>
-                      <div className='text-xs text-gray-500'>
+                      <div className='text-xs text-muted-foreground'>
                         추가 보안 설정
                       </div>
                     </button>

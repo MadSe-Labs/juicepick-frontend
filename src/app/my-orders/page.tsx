@@ -79,7 +79,7 @@ export default function OrdersPage() {
 
   if (!session) {
     return (
-      <div className='min-h-screen bg-gray-50'>
+      <div className='min-h-screen bg-background'>
         <Header />
         <div className='container mx-auto px-4 py-16 text-center'>
           <h2 className='text-2xl font-bold text-gray-600 mb-4'>
@@ -102,7 +102,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-background'>
       <Header />
 
       <main className='container mx-auto px-4 py-8'>
@@ -114,10 +114,10 @@ export default function OrdersPage() {
 
           {/* 주문 메인 콘텐츠 */}
           <div className='flex-1'>
-            <div className='bg-white rounded-lg shadow-sm'>
+            <div className='bg-card rounded-lg shadow-sm'>
               {/* 헤더 */}
               <div className='p-6 border-b'>
-                <h1 className='text-2xl font-bold text-gray-900 flex items-center'>
+                <h1 className='text-2xl font-bold text-foreground flex items-center'>
                   <Package className='mr-3 h-6 w-6' />
                   주문 내역 ({orders.length})
                 </h1>
@@ -125,11 +125,13 @@ export default function OrdersPage() {
 
               {orders.length === 0 ? (
                 <div className='p-12 text-center'>
-                  <Package className='mx-auto h-16 w-16 text-gray-400 mb-4' />
-                  <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                  <Package className='mx-auto h-16 w-16 text-muted-foreground mb-4' />
+                  <h3 className='text-lg font-medium text-foreground mb-2'>
                     주문 내역이 없습니다
                   </h3>
-                  <p className='text-gray-500 mb-6'>첫 주문을 시작해보세요!</p>
+                  <p className='text-muted-foreground mb-6'>
+                    첫 주문을 시작해보세요!
+                  </p>
                   <button className='bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600'>
                     쇼핑하러 가기
                   </button>
@@ -155,7 +157,7 @@ export default function OrdersPage() {
                                 {statusConfig[order.status].label}
                               </span>
                             </div>
-                            <div className='flex items-center text-sm text-gray-500 space-x-4'>
+                            <div className='flex items-center text-sm text-muted-foreground space-x-4'>
                               <div className='flex items-center'>
                                 <Calendar className='w-4 h-4 mr-1' />
                                 주문일: {order.orderDate}
@@ -170,7 +172,7 @@ export default function OrdersPage() {
                           </div>
                           <button
                             onClick={() => openOrderDetail(order)}
-                            className='flex items-center px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50'
+                            className='flex items-center px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-background'
                           >
                             <Eye className='w-4 h-4 mr-1' />
                             상세보기
@@ -184,7 +186,7 @@ export default function OrdersPage() {
                             .map((item: any, index: number) => (
                               <div
                                 key={index}
-                                className='flex items-center space-x-3 p-3 bg-gray-50 rounded-lg'
+                                className='flex items-center space-x-3 p-3 bg-background rounded-lg'
                               >
                                 <div className='w-12 h-12 bg-gray-200 rounded-lg overflow-hidden'>
                                   <Image
@@ -196,10 +198,10 @@ export default function OrdersPage() {
                                   />
                                 </div>
                                 <div className='flex-1 min-w-0'>
-                                  <p className='text-sm font-medium text-gray-900 truncate'>
+                                  <p className='text-sm font-medium text-foreground truncate'>
                                     {item.name}
                                   </p>
-                                  <p className='text-xs text-gray-500'>
+                                  <p className='text-xs text-muted-foreground'>
                                     {item.quantity}개 ×{' '}
                                     {item.price.toLocaleString()}원
                                   </p>
@@ -207,7 +209,7 @@ export default function OrdersPage() {
                               </div>
                             ))}
                           {order.items.length > 3 && (
-                            <div className='flex items-center justify-center p-3 bg-gray-100 rounded-lg text-sm text-gray-600'>
+                            <div className='flex items-center justify-center p-3 bg-accent rounded-lg text-sm text-gray-600'>
                               외 {order.items.length - 3}개 상품
                             </div>
                           )}
@@ -215,7 +217,7 @@ export default function OrdersPage() {
 
                         {/* 주문 금액 */}
                         <div className='flex items-center justify-between pt-4 border-t'>
-                          <div className='flex items-center text-sm text-gray-500'>
+                          <div className='flex items-center text-sm text-muted-foreground'>
                             <CreditCard className='w-4 h-4 mr-1' />총{' '}
                             {order.items.length}개 상품
                           </div>
@@ -236,13 +238,13 @@ export default function OrdersPage() {
       {/* 주문 상세 모달 */}
       {showModal && selectedOrder && (
         <div className='fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4'>
-          <div className='bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto'>
+          <div className='bg-card rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto'>
             <div className='p-6 border-b'>
               <div className='flex items-center justify-between'>
                 <h2 className='text-xl font-bold'>주문 상세 정보</h2>
                 <button
                   onClick={closeModal}
-                  className='text-gray-400 hover:text-gray-600'
+                  className='text-muted-foreground hover:text-gray-600'
                 >
                   <XCircle className='w-6 h-6' />
                 </button>
@@ -253,7 +255,7 @@ export default function OrdersPage() {
               {/* 주문 정보 */}
               <div className='mb-6'>
                 <h3 className='font-semibold mb-3'>주문 정보</h3>
-                <div className='bg-gray-50 rounded-lg p-4 space-y-2'>
+                <div className='bg-background rounded-lg p-4 space-y-2'>
                   <div className='flex justify-between'>
                     <span className='text-gray-600'>주문번호</span>
                     <span className='font-medium'>{selectedOrder.id}</span>
@@ -287,7 +289,7 @@ export default function OrdersPage() {
                   <MapPin className='w-4 h-4 mr-2' />
                   배송지 정보
                 </h3>
-                <div className='bg-gray-50 rounded-lg p-4'>
+                <div className='bg-background rounded-lg p-4'>
                   <p className='font-medium'>
                     {selectedOrder.shippingAddress.name}
                   </p>
@@ -323,7 +325,7 @@ export default function OrdersPage() {
                       <div className='flex-1'>
                         <h4 className='font-medium'>{item.name}</h4>
                         <p className='text-sm text-gray-600'>{item.brand}</p>
-                        <p className='text-sm text-gray-500'>
+                        <p className='text-sm text-muted-foreground'>
                           {item.quantity}개 × {item.price.toLocaleString()}원
                         </p>
                       </div>
@@ -343,7 +345,7 @@ export default function OrdersPage() {
                   <CreditCard className='w-4 h-4 mr-2' />
                   결제 정보
                 </h3>
-                <div className='bg-gray-50 rounded-lg p-4'>
+                <div className='bg-background rounded-lg p-4'>
                   <div className='flex justify-between mb-2'>
                     <span className='text-gray-600'>상품금액</span>
                     <span>{selectedOrder.totalAmount.toLocaleString()}원</span>

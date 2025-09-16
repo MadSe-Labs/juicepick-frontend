@@ -47,7 +47,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-background'>
       <Header />
 
       {/* Main Content */}
@@ -56,7 +56,7 @@ export default function LoginPage() {
           <div className='max-w-md w-full space-y-8'>
             {/* Login Title */}
             <div className='text-center'>
-              <h2 className='text-3xl font-bold text-gray-900'>로그인</h2>
+              <h2 className='text-3xl font-bold text-foreground'>로그인</h2>
               <p className='mt-2 text-sm text-gray-600'>
                 계정에 로그인하여 더 많은 기능을 이용하세요
               </p>
@@ -75,7 +75,7 @@ export default function LoginPage() {
             </div>
 
             {/* Login Form */}
-            <div className='bg-white py-8 px-6 shadow rounded-lg'>
+            <div className='bg-card py-8 px-6 shadow rounded-lg'>
               <form className='space-y-6' onSubmit={handleLogin}>
                 {/* Error Message */}
                 {error && (
@@ -90,7 +90,7 @@ export default function LoginPage() {
                 <div>
                   <label
                     htmlFor='email'
-                    className='block text-sm font-medium text-gray-700'
+                    className='block text-sm font-medium text-foreground'
                   >
                     이메일
                   </label>
@@ -111,7 +111,7 @@ export default function LoginPage() {
                 <div>
                   <label
                     htmlFor='password'
-                    className='block text-sm font-medium text-gray-700'
+                    className='block text-sm font-medium text-foreground'
                   >
                     비밀번호
                   </label>
@@ -132,9 +132,9 @@ export default function LoginPage() {
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
-                        <EyeOff className='h-5 w-5 text-gray-400' />
+                        <EyeOff className='h-5 w-5 text-muted-foreground' />
                       ) : (
-                        <Eye className='h-5 w-5 text-gray-400' />
+                        <Eye className='h-5 w-5 text-muted-foreground' />
                       )}
                     </button>
                   </div>
@@ -150,7 +150,7 @@ export default function LoginPage() {
                     />
                     <label
                       htmlFor='remember-me'
-                      className='ml-2 block text-sm text-gray-900'
+                      className='ml-2 block text-sm text-foreground'
                     >
                       로그인 상태 유지
                     </label>
