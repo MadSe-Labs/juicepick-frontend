@@ -1,16 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useProductStore } from '@/stores/useProductStore';
 
 export const useProductSearch = () => {
-  const { products, searchProducts } = useProductStore();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   // 검색 상태
   const [searchQuery, setSearchQuery] = useState('');
   const [actualSearchQuery, setActualSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState(products);
 
   // URL 파라미터에서 검색어 추출
   useEffect(() => {
@@ -35,23 +32,11 @@ export const useProductSearch = () => {
     }
   };
 
-  // 검색 적용
-  useEffect(() => {
-    let result = products;
-
-    if (actualSearchQuery.trim()) {
-      result = searchProducts(actualSearchQuery);
-    }
-
-    setSearchResults(result);
-  }, [actualSearchQuery, products, searchProducts]);
-
   return {
     searchQuery,
     setSearchQuery,
-    searchResults,
     executeSearch,
     isSearching: actualSearchQuery.trim() !== '',
-    actualSearchQuery, // 실제 검색된 쿼리 추가
+    actualSearchQuery,
   };
 };

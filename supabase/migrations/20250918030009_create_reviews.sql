@@ -130,7 +130,7 @@ CREATE TRIGGER product_review_stats_trigger
 
 -- Row Level Security 설정
 ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view reviews" ON reviews FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Anyone can view reviews" ON reviews FOR SELECT USING (true);
 CREATE POLICY "Users can manage own reviews" ON reviews FOR ALL USING (auth.uid()::uuid = user_id);
 
 ALTER TABLE review_votes ENABLE ROW LEVEL SECURITY;

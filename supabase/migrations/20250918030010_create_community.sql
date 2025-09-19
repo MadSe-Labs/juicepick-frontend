@@ -119,12 +119,12 @@ CREATE TRIGGER category_post_count_trigger
 
 -- Row Level Security 설정
 ALTER TABLE community_categories ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view categories" ON community_categories FOR SELECT TO authenticated USING (is_active = true);
+CREATE POLICY "Anyone can view categories" ON community_categories FOR SELECT USING (is_active = true);
 
 ALTER TABLE community_posts ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view posts" ON community_posts FOR SELECT TO authenticated USING (is_active = true);
+CREATE POLICY "Anyone can view posts" ON community_posts FOR SELECT USING (is_active = true);
 CREATE POLICY "Users can manage own posts" ON community_posts FOR ALL USING (auth.uid()::uuid = author_id);
 
 ALTER TABLE community_comments ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view comments" ON community_comments FOR SELECT TO authenticated USING (is_active = true);
+CREATE POLICY "Anyone can view comments" ON community_comments FOR SELECT USING (is_active = true);
 CREATE POLICY "Users can manage own comments" ON community_comments FOR ALL USING (auth.uid()::uuid = author_id);

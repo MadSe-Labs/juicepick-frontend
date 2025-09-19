@@ -45,7 +45,7 @@ CREATE TRIGGER update_products_updated_at
 
 -- Row Level Security 설정
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can view products" ON products FOR SELECT TO authenticated USING (is_active = true);
+CREATE POLICY "Anyone can view products" ON products FOR SELECT USING (is_active = true);
 CREATE POLICY "Admins can manage products" ON products FOR ALL TO authenticated USING (
   EXISTS (SELECT 1 FROM users WHERE users.id = auth.uid()::uuid AND users.role = 'admin')
 );
