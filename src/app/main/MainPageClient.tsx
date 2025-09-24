@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Search, Filter, Bell, ChevronDown, Loader2 } from 'lucide-react';
 import ProductCard from '@/components/product-card';
 import PriceFilter from '@/components/price-filter';
@@ -12,6 +12,10 @@ import {
   usePopularProducts,
   useNewProducts,
 } from '@/hooks/useProducts';
+import {
+  useFilteredProducts,
+  usePaginatedData,
+} from '@/hooks/useFilteredProducts';
 import { useCartStore } from '@/stores/useCartStore';
 import Header from '@/components/header';
 import Banner from '@/components/banner';
@@ -39,76 +43,50 @@ export default function MainPageClient() {
     usePopularProducts();
   const { data: newProducts = [], isLoading: newLoading } = useNewProducts();
 
-  // 필터 핸들러들
-  const handleBrandChange = (brand: string, checked: boolean) => {
-    if (checked) {
-      setSelectedBrands((prev) => [...prev, brand]);
-    } else {
-      setSelectedBrands((prev) => prev.filter((b) => b !== brand));
-    }
-  };
+  // 필터 핸들러들 - useCallback으로 최적화
+  const handleBrandChange = useCallback((brand: string, checked: boolean) => {
+    setSelectedBrands((prev) =>
+      checked ? [...prev, brand] : prev.filter((b) => b !== brand)
+    );
+  }, []);
 
-  const handleFlavorChange = (flavor: string, checked: boolean) => {
-    if (checked) {
-      setSelectedFlavors((prev) => [...prev, flavor]);
-    } else {
-      setSelectedFlavors((prev) => prev.filter((f) => f !== flavor));
-    }
-  };
+  const handleFlavorChange = useCallback((flavor: string, checked: boolean) => {
+    setSelectedFlavors((prev) =>
+      checked ? [...prev, flavor] : prev.filter((f) => f !== flavor)
+    );
+  }, []);
 
-  const handleNicotineChange = (nicotine: string, checked: boolean) => {
-    if (checked) {
-      setSelectedNicotine((prev) => [...prev, nicotine]);
-    } else {
-      setSelectedNicotine((prev) => prev.filter((n) => n !== nicotine));
-    }
-  };
+  const handleNicotineChange = useCallback(
+    (nicotine: string, checked: boolean) => {
+      setSelectedNicotine((prev) =>
+        checked ? [...prev, nicotine] : prev.filter((n) => n !== nicotine)
+      );
+    },
+    []
+  );
 
-  // 검색 실행
-  const executeSearch = () => {
+  // 검색 실행 - useCallback으로 최적화
+  const executeSearch = useCallback(() => {
     setActualSearchQuery(searchQuery);
     setDisplayCount(12); // 검색 시 페이지네이션 초기화
-  };
+  }, [searchQuery]);
 
-  // 검색 및 필터링
-  let filteredProducts = allProducts ?? [];
+  // ✅ Custom Hook을 사용한 선언형 필터링
+  const filteredProducts = useFilteredProducts(allProducts ?? [], {
+    searchQuery: actualSearchQuery,
+    brands: selectedBrands,
+    flavors: selectedFlavors,
+    nicotine: selectedNicotine,
+    sortBy: 'latest',
+  });
 
-  // 검색어 필터링
-  if (actualSearchQuery) {
-    filteredProducts = filteredProducts.filter(
-      (product) =>
-        product.name?.toLowerCase().includes(actualSearchQuery.toLowerCase()) ||
-        product.brand?.toLowerCase().includes(actualSearchQuery.toLowerCase())
-    );
-  }
-
-  // 브랜드 필터링
-  if (selectedBrands.length > 0) {
-    filteredProducts = filteredProducts.filter((product) =>
-      selectedBrands.includes(product.brand || '')
-    );
-  }
-
-  // 맛 필터링
-  if (selectedFlavors.length > 0) {
-    filteredProducts = filteredProducts.filter((product) =>
-      selectedFlavors.some((flavor) =>
-        product.flavor?.toLowerCase().includes(flavor.toLowerCase())
-      )
-    );
-  }
-
-  // 니코틴 필터링
-  if (selectedNicotine.length > 0) {
-    filteredProducts = filteredProducts.filter((product) =>
-      selectedNicotine.includes(product.nicotine || '')
-    );
-  }
-
-  const displayedProducts = filteredProducts.slice(0, displayCount);
-  const totalProducts = filteredProducts.length;
-  const hasMoreProducts = displayCount < totalProducts;
-  const remainingCount = totalProducts - displayCount;
+  // ✅ Custom Hook을 사용한 페이지네이션
+  const {
+    items: displayedProducts,
+    totalItems,
+    hasMore,
+    remainingCount,
+  } = usePaginatedData(filteredProducts, displayCount);
 
   // 검색/필터링 활성 상태 체크
   const isSearching = actualSearchQuery.length > 0;
@@ -117,13 +95,13 @@ export default function MainPageClient() {
     selectedFlavors.length > 0 ||
     selectedNicotine.length > 0;
 
-  const handleLoadMore = async () => {
+  const handleLoadMore = useCallback(async () => {
     setIsLoadingMore(true);
     // 로딩 시뮬레이션
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setDisplayCount((prev) => prev + 6);
     setIsLoadingMore(false);
-  };
+  }, []);
 
   // 에러 상태 처리
   if (productsError) {
@@ -354,7 +332,7 @@ export default function MainPageClient() {
                       ? `"${actualSearchQuery}" 검색 결과`
                       : '필터링된 상품'}
                     <span className='text-sm font-normal text-muted-foreground'>
-                      ({totalProducts}개)
+                      ({totalItems}개)
                     </span>
                   </h3>
                 </div>
@@ -381,12 +359,13 @@ export default function MainPageClient() {
                   </div>
 
                   {/* 더보기 버튼 */}
-                  {hasMoreProducts && (
+                  {hasMore && (
                     <LoadMoreButton
-                      onClick={handleLoadMore}
-                      isLoading={isLoadingMore}
+                      hasMoreItems={hasMore}
+                      isLoadingMore={isLoadingMore}
                       remainingCount={remainingCount}
-                      totalCount={totalProducts}
+                      totalItems={totalItems}
+                      onLoadMore={handleLoadMore}
                     />
                   )}
                 </>

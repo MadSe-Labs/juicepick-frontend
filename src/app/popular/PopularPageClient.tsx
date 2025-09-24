@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   Search,
   Filter,
@@ -17,6 +17,10 @@ import SidebarAd from '@/components/sidebar-ad';
 import PriceTrendChart from '@/components/price-trend-chart';
 import LoadMoreButton from '@/components/load-more-button';
 import { useProducts, usePopularProducts } from '@/hooks/useProducts';
+import {
+  useFilteredProducts,
+  usePaginatedData,
+} from '@/hooks/useFilteredProducts';
 import { useCartStore } from '@/stores/useCartStore';
 
 export default function PopularPageClient() {
@@ -38,103 +42,58 @@ export default function PopularPageClient() {
   const { data: popularProducts = [], isLoading: popularLoading } =
     usePopularProducts(100); // 더 많은 인기 제품
 
-  // 필터 핸들러들
-  const handleBrandChange = (brand: string, checked: boolean) => {
-    if (checked) {
-      setSelectedBrands((prev) => [...prev, brand]);
-    } else {
-      setSelectedBrands((prev) => prev.filter((b) => b !== brand));
-    }
-  };
+  // 필터 핸들러들 - useCallback으로 최적화
+  const handleBrandChange = useCallback((brand: string, checked: boolean) => {
+    setSelectedBrands((prev) =>
+      checked ? [...prev, brand] : prev.filter((b) => b !== brand)
+    );
+  }, []);
 
-  const handleFlavorChange = (flavor: string, checked: boolean) => {
-    if (checked) {
-      setSelectedFlavors((prev) => [...prev, flavor]);
-    } else {
-      setSelectedFlavors((prev) => prev.filter((f) => f !== flavor));
-    }
-  };
+  const handleFlavorChange = useCallback((flavor: string, checked: boolean) => {
+    setSelectedFlavors((prev) =>
+      checked ? [...prev, flavor] : prev.filter((f) => f !== flavor)
+    );
+  }, []);
 
-  const handleNicotineChange = (nicotine: string, checked: boolean) => {
-    if (checked) {
-      setSelectedNicotine((prev) => [...prev, nicotine]);
-    } else {
-      setSelectedNicotine((prev) => prev.filter((n) => n !== nicotine));
-    }
-  };
+  const handleNicotineChange = useCallback(
+    (nicotine: string, checked: boolean) => {
+      setSelectedNicotine((prev) =>
+        checked ? [...prev, nicotine] : prev.filter((n) => n !== nicotine)
+      );
+    },
+    []
+  );
 
-  // 검색 실행
-  const executeSearch = () => {
+  // 검색 실행 - useCallback으로 최적화
+  const executeSearch = useCallback(() => {
     setActualSearchQuery(searchQuery);
     setDisplayCount(20); // 검색 시 페이지네이션 초기화
-  };
+  }, [searchQuery]);
 
   // 기본 데이터 설정 (검색 중이면 전체 제품, 아니면 인기 제품)
-  let baseProducts = actualSearchQuery ? allProducts : popularProducts;
+  const baseProducts = actualSearchQuery ? allProducts : popularProducts;
 
-  // 검색 및 필터링
-  let filteredProducts = baseProducts ?? [];
+  // ✅ Custom Hook을 사용한 선언형 필터링 (검색어는 이미 baseProducts에서 처리됨)
+  const filteredProducts = useFilteredProducts(baseProducts ?? [], {
+    searchQuery: actualSearchQuery,
+    brands: selectedBrands,
+    flavors: selectedFlavors,
+    nicotine: selectedNicotine,
+    sortBy: sortOrder as
+      | 'popular'
+      | 'latest'
+      | 'price-low'
+      | 'price-high'
+      | 'rating',
+  });
 
-  // 검색어 필터링
-  if (actualSearchQuery) {
-    filteredProducts = filteredProducts.filter(
-      (product) =>
-        product.name?.toLowerCase().includes(actualSearchQuery.toLowerCase()) ||
-        product.brand?.toLowerCase().includes(actualSearchQuery.toLowerCase())
-    );
-  }
-
-  // 브랜드 필터링
-  if (selectedBrands.length > 0) {
-    filteredProducts = filteredProducts.filter((product) =>
-      selectedBrands.includes(product.brand || '')
-    );
-  }
-
-  // 맛 필터링
-  if (selectedFlavors.length > 0) {
-    filteredProducts = filteredProducts.filter((product) =>
-      selectedFlavors.some((flavor) =>
-        product.flavor?.toLowerCase().includes(flavor.toLowerCase())
-      )
-    );
-  }
-
-  // 니코틴 필터링
-  if (selectedNicotine.length > 0) {
-    filteredProducts = filteredProducts.filter((product) =>
-      selectedNicotine.includes(product.nicotine || '')
-    );
-  }
-
-  // 정렬 적용
-  let sortedProducts = [...filteredProducts];
-  switch (sortOrder) {
-    case 'popular':
-      // 이미 인기순으로 정렬됨 (기본)
-      break;
-    case 'latest':
-      sortedProducts.sort(
-        (a, b) =>
-          new Date(b.created_at || '').getTime() -
-          new Date(a.created_at || '').getTime()
-      );
-      break;
-    case 'price-low':
-      sortedProducts.sort((a, b) => (a.price || 0) - (b.price || 0));
-      break;
-    case 'price-high':
-      sortedProducts.sort((a, b) => (b.price || 0) - (a.price || 0));
-      break;
-    case 'rating':
-      sortedProducts.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-      break;
-  }
-
-  const displayedProducts = sortedProducts.slice(0, displayCount);
-  const totalProducts = sortedProducts.length;
-  const hasMoreProducts = displayCount < totalProducts;
-  const remainingCount = totalProducts - displayCount;
+  // ✅ Custom Hook을 사용한 페이지네이션
+  const {
+    items: displayedProducts,
+    totalItems,
+    hasMore,
+    remainingCount,
+  } = usePaginatedData(filteredProducts, displayCount);
 
   // 검색/필터링 활성 상태 체크
   const isSearching = actualSearchQuery.length > 0;
@@ -143,13 +102,13 @@ export default function PopularPageClient() {
     selectedFlavors.length > 0 ||
     selectedNicotine.length > 0;
 
-  const handleLoadMore = async () => {
+  const handleLoadMore = useCallback(async () => {
     setIsLoadingMore(true);
     // 로딩 시뮬레이션
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setDisplayCount((prev) => prev + 12);
     setIsLoadingMore(false);
-  };
+  }, []);
 
   return (
     <div className='container mx-auto px-4 py-8'>
@@ -432,7 +391,7 @@ export default function PopularPageClient() {
                     ? `"${actualSearchQuery}" 검색 결과`
                     : '필터링된 인기 제품'}
                   <span className='text-sm font-normal text-muted-foreground'>
-                    ({totalProducts}개)
+                    ({totalItems}개)
                   </span>
                 </h3>
               </div>
@@ -474,12 +433,12 @@ export default function PopularPageClient() {
                 </div>
 
                 {/* 더보기 버튼 */}
-                {hasMoreProducts && (
+                {hasMore && (
                   <LoadMoreButton
-                    hasMoreItems={hasMoreProducts}
+                    hasMoreItems={hasMore}
                     isLoadingMore={isLoadingMore}
                     remainingCount={remainingCount}
-                    totalItems={totalProducts}
+                    totalItems={totalItems}
                     onLoadMore={handleLoadMore}
                   />
                 )}
