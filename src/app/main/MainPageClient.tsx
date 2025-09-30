@@ -27,6 +27,7 @@ import {
 import { useCartStore } from '@/stores/useCartStore';
 import Header from '@/components/header';
 import Banner from '@/components/banner';
+import SupabaseConnectionError from '@/components/supabase-connection-error';
 
 export default function MainPageClient() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -397,6 +398,9 @@ export default function MainPageClient() {
 
             {/* Products Section */}
             <div>
+              {/* Supabase 연결 오류 */}
+              <SupabaseConnectionError error={productsError} />
+
               {/* 검색/필터 결과 헤더 */}
               {(isSearching || hasActiveFilters) && (
                 <div className='bg-card p-4 rounded-lg shadow mb-6'>

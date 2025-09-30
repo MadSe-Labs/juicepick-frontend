@@ -12,6 +12,7 @@ import {
   Award,
 } from 'lucide-react';
 import SidebarAd from '@/components/sidebar-ad';
+import SupabaseConnectionError from '@/components/supabase-connection-error';
 import Image from 'next/image';
 import { MOCK_TOP_REVIEWERS, FILTER_TAGS } from '@/lib/mockData';
 import { useReviewsWithSearch } from '@/hooks/useReviews';
@@ -28,7 +29,11 @@ export default function ReviewsPageClient() {
   const [showVerifiedOnly, setShowVerifiedOnly] = useState(false);
 
   // 리뷰 데이터 가져오기 (Supabase에서)
-  const { data: searchResults = [], isLoading } = useReviewsWithSearch(
+  const {
+    data: searchResults = [],
+    isLoading,
+    error: reviewsError,
+  } = useReviewsWithSearch(
     searchQuery,
     selectedRatings,
     selectedTags,
@@ -204,6 +209,9 @@ export default function ReviewsPageClient() {
 
         {/* Main Content */}
         <div className='flex-1'>
+          {/* Supabase 연결 오류 */}
+          <SupabaseConnectionError error={reviewsError} />
+
           {/* Search and Filter Header */}
           <div className='bg-card p-6 rounded-lg shadow mb-6'>
             <div className='flex flex-col lg:flex-row gap-4'>

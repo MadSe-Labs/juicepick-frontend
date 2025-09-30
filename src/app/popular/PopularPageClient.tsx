@@ -22,6 +22,7 @@ import {
   usePaginatedData,
 } from '@/hooks/useFilteredProducts';
 import { useCartStore } from '@/stores/useCartStore';
+import SupabaseConnectionError from '@/components/supabase-connection-error';
 
 export default function PopularPageClient() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,7 +39,11 @@ export default function PopularPageClient() {
   const { addItem } = useCartStore();
 
   // Supabase에서 데이터 가져오기
-  const { data: allProducts = [], isLoading: productsLoading } = useProducts();
+  const {
+    data: allProducts = [],
+    isLoading: productsLoading,
+    error: productsError,
+  } = useProducts();
   const { data: popularProducts = [], isLoading: popularLoading } =
     usePopularProducts(100); // 더 많은 인기 제품
 
@@ -382,6 +387,9 @@ export default function PopularPageClient() {
 
           {/* Products Section */}
           <div>
+            {/* Supabase 연결 오류 */}
+            <SupabaseConnectionError error={productsError} />
+
             {/* 검색/필터 결과 헤더 */}
             {(isSearching || hasActiveFilters) && (
               <div className='bg-card p-4 rounded-lg shadow mb-6'>
