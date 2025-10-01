@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import {
   Search,
   Filter,
@@ -21,7 +23,7 @@ import {
   useFilteredProducts,
   usePaginatedData,
 } from '@/hooks/useFilteredProducts';
-import { useCartStore } from '@/stores/useCartStore';
+import { useCart } from '@/hooks/useCart';
 import SupabaseConnectionError from '@/components/supabase-connection-error';
 
 export default function PopularPageClient() {
@@ -30,13 +32,14 @@ export default function PopularPageClient() {
   const [displayCount, setDisplayCount] = useState(20); // 인기 제품은 더 많이 표시
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [sortOrder, setSortOrder] = useState('popular'); // 기본 인기순
+  const router = useRouter();
 
   // 필터 상태
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedFlavors, setSelectedFlavors] = useState<string[]>([]);
   const [selectedNicotine, setSelectedNicotine] = useState<string[]>([]);
 
-  const { addItem } = useCartStore();
+  const { addItem, items: cartItems } = useCart();
 
   // Supabase에서 데이터 가져오기
   const {
@@ -114,6 +117,49 @@ export default function PopularPageClient() {
     setDisplayCount((prev) => prev + 12);
     setIsLoadingMore(false);
   }, []);
+
+  // 장바구니 담기 함수
+  const handleAddToCart = useCallback(
+    (product: any) => {
+      // 이미 장바구니에 있는지 확인
+      const existingItem = cartItems.find(
+        (item) => item.productId === product.id
+      );
+
+      if (existingItem) {
+        // 이미 있으면 수량 증가
+        addItem(product);
+        toast(
+          `${product.name}의 수량이 증가되었습니다 (${
+            existingItem.quantity + 1
+          }개)`,
+          {
+            icon: '🔄',
+            duration: 2000,
+          }
+        );
+      } else {
+        // 새로 추가
+        addItem(product);
+        toast.success(
+          <div className='flex flex-col gap-2'>
+            <p className='font-medium'>{product.name}</p>
+            <p className='text-sm'>장바구니에 추가되었습니다!</p>
+            <button
+              onClick={() => router.push('/cart')}
+              className='mt-1 text-xs font-semibold text-green-600 hover:text-green-700 underline'
+            >
+              장바구니 보기 →
+            </button>
+          </div>,
+          {
+            duration: 3000,
+          }
+        );
+      }
+    },
+    [cartItems, addItem, router]
+  );
 
   return (
     <div className='container mx-auto px-4 py-8'>
@@ -434,7 +480,7 @@ export default function PopularPageClient() {
                       )}
                       <ProductCard
                         product={product}
-                        onAddToCart={() => addItem(product)}
+                        onAddToCart={() => handleAddToCart(product)}
                       />
                     </div>
                   ))}

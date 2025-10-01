@@ -381,7 +381,7 @@ export default function ReviewsPageClient() {
                       </div>
 
                       <div className='mb-4'>
-                        <p className='text-gray-700 leading-relaxed'>
+                        <p className='text-muted-foreground leading-relaxed'>
                           {review.content}
                         </p>
                       </div>

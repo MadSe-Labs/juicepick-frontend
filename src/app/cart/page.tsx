@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useCartStore } from '@/stores/useCartStore';
+import { useCart } from '@/hooks/useCart';
 import LoadingPage from '@/components/loading-page';
 import {
   ShoppingCart,
@@ -29,7 +29,7 @@ export default function CartPage() {
     clearCart,
     getTotalPrice,
     getTotalItems,
-  } = useCartStore();
+  } = useCart();
 
   const [isLoading, setIsLoading] = useState(true);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -191,7 +191,7 @@ export default function CartPage() {
                       {/* 상품 이미지 */}
                       <div className='w-20 h-20 bg-gray-200 rounded-lg overflow-hidden'>
                         <Image
-                          src={item.image}
+                          src={item.image_url || '/placeholder.svg'}
                           alt={item.name}
                           width={80}
                           height={80}

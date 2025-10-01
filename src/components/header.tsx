@@ -14,12 +14,12 @@ import {
   Search,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { useCartStore } from '@/stores/useCartStore';
+import { useCart } from '@/hooks/useCart';
 import ThemeToggle from '@/components/theme-toggle';
 
 export default function Header() {
   const { data: session, status } = useSession();
-  const { items: cartItems } = useCartStore();
+  const { items: cartItems } = useCart();
   const router = useRouter();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
