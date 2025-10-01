@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import SidebarAd from '@/components/sidebar-ad';
 import LoadMoreButton from '@/components/load-more-button';
+import SupabaseConnectionError from '@/components/supabase-connection-error';
 import {
   useCommunityPosts,
   usePopularCommunityPosts,
@@ -46,7 +47,11 @@ export default function CommunityPageClient() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Supabase에서 데이터 가져오기
-  const { data: allPosts = [], isLoading: postsLoading } = useCommunityPosts();
+  const {
+    data: allPosts = [],
+    isLoading: postsLoading,
+    error: postsError,
+  } = useCommunityPosts();
   const { data: popularPosts = [], isLoading: popularLoading } =
     usePopularCommunityPosts(5);
   const { data: hotPosts = [], isLoading: hotLoading } =
@@ -273,9 +278,8 @@ export default function CommunityPageClient() {
               </div>
             </div>
           </div>
-
           {/* 고정 게시글 */}
-          {!isSearching && pinnedPosts?.length && (
+          {!isSearching && pinnedPosts?.length ? (
             <div className='mb-6'>
               <div className='space-y-3'>
                 {pinnedPosts?.map((post: any) => (
@@ -303,8 +307,10 @@ export default function CommunityPageClient() {
                 ))}
               </div>
             </div>
-          )}
+          ) : null}
 
+          {/* Supabase 연결 오류 */}
+          <SupabaseConnectionError error={postsError} />
           {/* Posts List */}
           <div className='space-y-4'>
             {/* 검색 결과 헤더 */}

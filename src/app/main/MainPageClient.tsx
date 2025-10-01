@@ -1,7 +1,15 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Search, Filter, Bell, ChevronDown, Loader2 } from 'lucide-react';
+import {
+  Search,
+  Filter,
+  Loader2,
+  Home,
+  Package,
+  TrendingUp,
+  Sparkles,
+} from 'lucide-react';
 import ProductCard from '@/components/product-card';
 import PriceFilter from '@/components/price-filter';
 import SidebarAd from '@/components/sidebar-ad';
@@ -19,6 +27,7 @@ import {
 import { useCartStore } from '@/stores/useCartStore';
 import Header from '@/components/header';
 import Banner from '@/components/banner';
+import SupabaseConnectionError from '@/components/supabase-connection-error';
 
 export default function MainPageClient() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -276,6 +285,72 @@ export default function MainPageClient() {
 
           {/* Main Content */}
           <div className='flex-1'>
+            {/* 페이지 헤더 */}
+            <div className='mb-8'>
+              <div className='flex items-center gap-3 mb-4'>
+                <div className='flex items-center justify-center w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl'>
+                  <Home className='h-6 w-6 text-white' />
+                </div>
+                <div>
+                  <h1 className='text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent'>
+                    전체 제품
+                  </h1>
+                  <p className='text-muted-foreground'>
+                    다양한 전자담배 액상을 한눈에 비교하고 선택하세요
+                  </p>
+                </div>
+              </div>
+
+              {/* 통계 카드 */}
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-6'>
+                <div className='bg-card p-4 rounded-lg shadow border'>
+                  <div className='flex items-center gap-3'>
+                    <div className='w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center'>
+                      <Package className='h-5 w-5 text-blue-600' />
+                    </div>
+                    <div>
+                      <div className='text-2xl font-bold'>{totalItems}</div>
+                      <div className='text-sm text-muted-foreground'>
+                        전체 제품
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='bg-card p-4 rounded-lg shadow border'>
+                  <div className='flex items-center gap-3'>
+                    <div className='w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center'>
+                      <TrendingUp className='h-5 w-5 text-green-600' />
+                    </div>
+                    <div>
+                      <div className='text-2xl font-bold'>
+                        {popularProducts?.length || 0}
+                      </div>
+                      <div className='text-sm text-muted-foreground'>
+                        인기 제품
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='bg-card p-4 rounded-lg shadow border'>
+                  <div className='flex items-center gap-3'>
+                    <div className='w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center'>
+                      <Sparkles className='h-5 w-5 text-orange-600' />
+                    </div>
+                    <div>
+                      <div className='text-2xl font-bold'>
+                        {newProducts?.length || 0}
+                      </div>
+                      <div className='text-sm text-muted-foreground'>
+                        신제품
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Search and Sort */}
             <div className='bg-card p-4 rounded-lg shadow mb-6'>
               <div className='flex flex-col sm:flex-row gap-4 items-center justify-between'>
@@ -323,6 +398,9 @@ export default function MainPageClient() {
 
             {/* Products Section */}
             <div>
+              {/* Supabase 연결 오류 */}
+              <SupabaseConnectionError error={productsError} />
+
               {/* 검색/필터 결과 헤더 */}
               {(isSearching || hasActiveFilters) && (
                 <div className='bg-card p-4 rounded-lg shadow mb-6'>
