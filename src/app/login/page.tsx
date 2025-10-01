@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { signIn, getSession } from 'next-auth/react';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
+import { signIn } from '@/hooks/useAuth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -26,21 +26,16 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      });
+      // Supabase Auth 로그인
+      await signIn(email, password);
 
-      if (result?.error) {
-        setError('이메일 또는 비밀번호가 올바르지 않습니다.');
-      } else {
-        // 로그인 성공 시 원래 가려던 페이지 또는 메인 페이지로 이동
-        router.push(from);
-        router.refresh();
-      }
-    } catch (error) {
-      setError('로그인 중 오류가 발생했습니다.');
+      // 로그인 성공 시 원래 가려던 페이지 또는 메인 페이지로 이동
+      console.log('✅ 로그인 성공!');
+      router.push(from);
+      router.refresh();
+    } catch (err: any) {
+      console.error('❌ 로그인 실패:', err);
+      setError(err.message || '이메일 또는 비밀번호가 올바르지 않습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -65,12 +60,16 @@ export default function LoginPage() {
             {/* Demo Account Info */}
             <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
               <h3 className='text-sm font-medium text-blue-800 mb-2'>
-                테스트 계정
+                🎯 처음 사용하시나요?
               </h3>
-              <div className='text-xs text-blue-700 space-y-1'>
-                <p>• 일반 사용자: test@juicepick.com / 123456</p>
-                <p>• 관리자: admin@juicepick.com / admin123</p>
-                <p>• 간편 테스트: user@example.com / password</p>
+              <div className='text-xs text-blue-700 space-y-2'>
+                <p>계정이 없으시다면 먼저 회원가입을 해주세요!</p>
+                <Link
+                  href='/signup'
+                  className='inline-block mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors'
+                >
+                  회원가입하기
+                </Link>
               </div>
             </div>
 

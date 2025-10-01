@@ -1,5 +1,5 @@
-import { withAuth } from 'next-auth/middleware';
-import { NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
 
 // ✅ 경로 상수 분리
 const AUTH_PAGES = ['/login', '/signup'];
@@ -15,36 +15,64 @@ function isProtectedPage(pathname: string) {
   return PROTECTED_PATHS.some((page) => pathname.startsWith(page));
 }
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token;
-    const isAuth = !!token;
-    const { pathname, search } = req.nextUrl;
-
-    // 로그인하지 않은 사용자가 보호된 페이지 접근 → 로그인 페이지로
-    if (!isAuth && isProtectedPage(pathname)) {
-      let from = pathname + (search || '');
-      return NextResponse.redirect(
-        new URL(`/login?from=${encodeURIComponent(from)}`, req.url)
-      );
-    }
-
-    // 로그인한 사용자가 인증 페이지 접근 → 메인 페이지로 (루프 방지 조건 포함)
-    if (isAuth && isAuthPage(pathname) && pathname !== MAIN_PAGE) {
-      return NextResponse.redirect(new URL(MAIN_PAGE, req.url));
-    }
-
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      // ✅ 모든 요청 허용 - 미들웨어 함수에서 로직 처리
-      authorized: () => true,
+export async function middleware(req: NextRequest) {
+  let response = NextResponse.next({
+    request: {
+      headers: req.headers,
     },
-  }
-);
+  });
 
-// ✅ matcher도 상수 재활용 가능 (import/export 구조로 관리 가능)
+  // Supabase 클라이언트 생성
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            req.cookies.set(name, value)
+          );
+          response = NextResponse.next({
+            request: {
+              headers: req.headers,
+            },
+          });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  // Supabase 세션 확인
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isAuth = !!user;
+  const { pathname, search } = req.nextUrl;
+
+  // 로그인하지 않은 사용자가 보호된 페이지 접근 → 로그인 페이지로
+  if (!isAuth && isProtectedPage(pathname)) {
+    let from = pathname + (search || '');
+    return NextResponse.redirect(
+      new URL(`/login?from=${encodeURIComponent(from)}`, req.url)
+    );
+  }
+
+  // 로그인한 사용자가 인증 페이지 접근 → 메인 페이지로
+  if (isAuth && isAuthPage(pathname) && pathname !== MAIN_PAGE) {
+    return NextResponse.redirect(new URL(MAIN_PAGE, req.url));
+  }
+
+  return response;
+}
+
+// ✅ matcher도 상수 재활용
 export const config = {
   matcher: [
     ...PROTECTED_PATHS.map((path) => `${path}/:path*`),

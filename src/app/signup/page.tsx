@@ -6,7 +6,6 @@ import Link from 'next/link';
 import {
   Eye,
   EyeOff,
-  User,
   Mail,
   Lock,
   AlertCircle,
@@ -14,10 +13,10 @@ import {
 } from 'lucide-react';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
+import { signUp } from '@/hooks/useAuth';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -36,10 +35,6 @@ export default function SignupPage() {
   };
 
   const validateForm = () => {
-    if (!formData.name.trim()) {
-      setError('이름을 입력해주세요.');
-      return false;
-    }
     if (!formData.email.trim()) {
       setError('이메일을 입력해주세요.');
       return false;
@@ -70,15 +65,8 @@ export default function SignupPage() {
     setError('');
 
     try {
-      // 실제로는 여기서 회원가입 API 호출
-      // const response = await fetch('/api/auth/signup', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-
-      // 임시로 성공 처리
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Supabase Auth 회원가입
+      await signUp(formData.email, formData.password);
 
       setSuccess(true);
 
@@ -86,8 +74,9 @@ export default function SignupPage() {
       setTimeout(() => {
         router.push('/login');
       }, 3000);
-    } catch (error) {
-      setError('회원가입 중 오류가 발생했습니다.');
+    } catch (err: any) {
+      console.error('회원가입 실패:', err);
+      setError(err.message || '회원가입 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -167,29 +156,6 @@ export default function SignupPage() {
                     </div>
                   </div>
                 )}
-
-                {/* 이름 */}
-                <div>
-                  <label
-                    htmlFor='name'
-                    className='block text-sm font-medium text-foreground mb-2'
-                  >
-                    <div className='flex items-center space-x-1'>
-                      <User className='h-4 w-4' />
-                      <span>이름</span>
-                    </div>
-                  </label>
-                  <input
-                    id='name'
-                    name='name'
-                    type='text'
-                    required
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className='appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm'
-                    placeholder='홍길동'
-                  />
-                </div>
 
                 {/* 이메일 */}
                 <div>

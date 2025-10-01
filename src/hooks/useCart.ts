@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase';
 import {
@@ -20,7 +19,7 @@ import { useCartStore } from '@/stores/useCartStore';
  * - 비로그인 사용자: LocalStorage 사용 (기존 useCartStore)
  */
 export function useCart() {
-  const { data: session } = useSession();
+  const session: any = null;
   const supabase = createClient();
   const queryClient = useQueryClient();
 

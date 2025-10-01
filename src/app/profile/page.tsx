@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useProfileStore } from '@/stores/useProfileStore';
 import LoadingPage from '@/components/loading-page';
 import {
@@ -25,26 +25,25 @@ import Footer from '@/components/footer';
 import SidebarAd from '@/components/sidebar-ad';
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
+  const { user, loading } = useAuth();
   const { currentProfile, getProfileById, updateProfile, setCurrentProfile } =
     useProfileStore();
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState(currentProfile);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (session?.user?.id) {
-      const profile = getProfileById(session.user.id);
+    if (user?.id) {
+      const profile = getProfileById(user.id);
       if (profile) {
         setCurrentProfile(profile);
         setEditedData(profile);
       } else {
-        // 기본 프로필 생성 (세션 정보 기반)
+        // 기본 프로필 생성
         const defaultProfile = {
-          id: session.user.id,
-          name: session.user.name || '사용자',
-          email: session.user.email || '',
+          id: user.id,
+          name: user.email?.split('@')[0] || '사용자',
+          email: user.email || '',
           phone: '010-0000-0000',
           birthDate: '1990-01-01',
           gender: 'male' as const,
@@ -62,31 +61,12 @@ export default function ProfilePage() {
         setCurrentProfile(defaultProfile);
         setEditedData(defaultProfile);
       }
-      setIsLoading(false);
     }
-  }, [session, getProfileById, setCurrentProfile]);
-
-  if (status === 'loading' || isLoading) {
-    return <LoadingPage />;
-  }
-
-  if (!session) {
-    return (
-      <div className='min-h-screen bg-background'>
-        <Header />
-        <div className='container mx-auto px-4 py-16 text-center'>
-          <h2 className='text-2xl font-bold text-gray-600 mb-4'>
-            로그인이 필요합니다
-          </h2>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  }, [user, getProfileById, setCurrentProfile]);
 
   const handleSave = () => {
-    if (editedData && session?.user?.id) {
-      updateProfile(session.user.id, editedData);
+    if (editedData && user?.id) {
+      updateProfile(user.id, editedData);
       setIsEditing(false);
     }
   };
@@ -122,10 +102,6 @@ export default function ProfilePage() {
     );
   };
 
-  if (!currentProfile || !editedData) {
-    return <LoadingPage />;
-  }
-
   const recentActivities = [
     {
       type: 'order',
@@ -146,6 +122,14 @@ export default function ProfilePage() {
       icon: <MessageSquare className='h-4 w-4' />,
     },
   ];
+
+  if (loading) {
+    return <LoadingPage />;
+  }
+
+  if (!currentProfile || !editedData) {
+    return <LoadingPage />;
+  }
 
   return (
     <div className='min-h-screen bg-background'>

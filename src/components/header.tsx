@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
 import {
   User,
   ShoppingCart,
@@ -15,10 +14,11 @@ import {
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/hooks/useCart';
+import { useAuth, signOut } from '@/hooks/useAuth';
 import ThemeToggle from '@/components/theme-toggle';
 
 export default function Header() {
-  const { data: session, status } = useSession();
+  const { user, isAuthenticated } = useAuth();
   const { items: cartItems } = useCart();
   const router = useRouter();
 
@@ -69,7 +69,8 @@ export default function Header() {
   };
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/main' });
+    await signOut();
+    router.push('/main');
   };
 
   return (
@@ -122,9 +123,7 @@ export default function Header() {
 
           {/* User Actions */}
           <div className='hidden md:flex items-center space-x-4'>
-            {status === 'loading' ? (
-              <div className='text-muted-foreground'>로딩중...</div>
-            ) : session ? (
+            {isAuthenticated ? (
               <>
                 {/* 테마 토글 */}
                 <ThemeToggle />
@@ -148,7 +147,7 @@ export default function Header() {
                   >
                     <UserCircle className='h-5 w-5' />
                     <span className='text-sm font-medium'>
-                      {session.user?.name}
+                      {user?.email?.split('@')[0]}
                     </span>
                   </button>
 
@@ -262,16 +261,16 @@ export default function Header() {
 
               {/* 모바일 사용자 액션 */}
               <div className='pt-4 border-t border-gray-200'>
-                {session ? (
+                {isAuthenticated ? (
                   <div className='space-y-3'>
                     <div className='flex items-center space-x-3 px-2'>
                       <UserCircle className='h-6 w-6 text-gray-600' />
                       <div>
                         <p className='text-sm font-medium text-foreground'>
-                          {session.user?.name}
+                          {user?.email?.split('@')[0]}
                         </p>
                         <p className='text-xs text-muted-foreground'>
-                          {session.user?.email}
+                          {user?.email}
                         </p>
                       </div>
                     </div>
