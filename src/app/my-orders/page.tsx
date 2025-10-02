@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '@/hooks/useAuth';
 import { useOrderStore } from '@/stores/useOrderStore';
 import LoadingPage from '@/components/loading-page';
 import {
@@ -55,41 +55,19 @@ const statusConfig: Record<StatusTypes, Record<string, any>> = {
 };
 
 export default function OrdersPage() {
-  const { data: session, status } = useSession();
+  const { user, loading } = useAuth();
   const { getOrdersByUserId } = useOrderStore();
 
   const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    if (session?.user?.id) {
-      const userOrders = getOrdersByUserId(session.user.id);
+    if (user?.id) {
+      const userOrders = getOrdersByUserId(user.id);
       setOrders(userOrders);
-      setIsLoading(false);
-    } else if (status !== 'loading') {
-      setIsLoading(false);
     }
-  }, [session, status, getOrdersByUserId]);
-
-  if (status === 'loading' || isLoading) {
-    return <LoadingPage />;
-  }
-
-  if (!session) {
-    return (
-      <div className='min-h-screen bg-background'>
-        <Header />
-        <div className='container mx-auto px-4 py-16 text-center'>
-          <h2 className='text-2xl font-bold text-gray-600 mb-4'>
-            로그인이 필요합니다
-          </h2>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  }, [user, getOrdersByUserId]);
 
   const openOrderDetail = (order: any) => {
     setSelectedOrder(order);
@@ -100,6 +78,10 @@ export default function OrdersPage() {
     setSelectedOrder(null);
     setShowModal(false);
   };
+
+  if (loading) {
+    return <LoadingPage />;
+  }
 
   return (
     <div className='min-h-screen bg-background'>

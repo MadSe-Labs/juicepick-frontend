@@ -7,8 +7,8 @@ export interface Product {
   discount?: number;
   rating: number;
   reviewCount: number;
-  image: string;
-  images: string[];
+  image_url: string;
+  image_urls: string[];
   description: string;
   flavor: string;
   nicotine: string;

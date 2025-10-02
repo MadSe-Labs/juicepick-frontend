@@ -39,7 +39,8 @@ export const useCartStore = create<CartStore>()(
             name: product.name,
             brand: product.brand,
             price: product.price,
-            image: product.image,
+            // DB 스키마 필드명 대응 (image_url)
+            image_url: product.image_url || '',
             quantity: 1,
           };
           set({ items: [...items, newItem] });

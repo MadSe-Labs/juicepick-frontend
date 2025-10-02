@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { useCartStore } from '@/stores/useCartStore';
+import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
 import LoadingPage from '@/components/loading-page';
 import {
   ShoppingCart,
@@ -21,7 +21,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default function CartPage() {
-  const { data: session, status } = useSession();
+  const { user, loading } = useAuth();
   const {
     items: cartItems,
     updateQuantity,
@@ -29,9 +29,8 @@ export default function CartPage() {
     clearCart,
     getTotalPrice,
     getTotalItems,
-  } = useCartStore();
+  } = useCart();
 
-  const [isLoading, setIsLoading] = useState(true);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{
@@ -40,16 +39,9 @@ export default function CartPage() {
   } | null>(null);
 
   useEffect(() => {
-    if (status !== 'loading') {
-      setIsLoading(false);
-      // 초기에 모든 아이템을 선택된 상태로 설정
-      setSelectedItems(cartItems.map((item) => item.id));
-    }
-  }, [status, cartItems]);
-
-  if (isLoading) {
-    return <LoadingPage />;
-  }
+    // 초기에 모든 아이템을 선택된 상태로 설정
+    setSelectedItems(cartItems.map((item) => item.id));
+  }, [cartItems]);
 
   // 전체 선택/해제
   const toggleSelectAll = () => {
@@ -126,6 +118,10 @@ export default function CartPage() {
     );
   }
 
+  if (loading) {
+    return <LoadingPage />;
+  }
+
   return (
     <div className='min-h-screen bg-background'>
       <Header />
@@ -191,7 +187,7 @@ export default function CartPage() {
                       {/* 상품 이미지 */}
                       <div className='w-20 h-20 bg-gray-200 rounded-lg overflow-hidden'>
                         <Image
-                          src={item.image}
+                          src={item.image_url || '/placeholder.svg'}
                           alt={item.name}
                           width={80}
                           height={80}
