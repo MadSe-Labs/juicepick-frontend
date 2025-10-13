@@ -2,132 +2,120 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useProfileStore } from '@/stores/useProfileStore';
+import { useUserProfile, useUpdateProfile } from '@/hooks/useUserProfile';
 import LoadingPage from '@/components/loading-page';
+import toast from 'react-hot-toast';
 import {
   User,
   Edit3,
   Save,
   X,
   Bell,
-  MessageSquare,
-  Calendar,
-  Award,
-  Package,
-  MapPin,
   Phone,
   Mail,
-  Shield,
-  Settings,
+  Calendar,
 } from 'lucide-react';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import SidebarAd from '@/components/sidebar-ad';
 
 export default function ProfilePage() {
-  const { user, loading } = useAuth();
-  const { currentProfile, getProfileById, updateProfile, setCurrentProfile } =
-    useProfileStore();
+  const { user, loading: authLoading } = useAuth();
+  const { data: profileData, isLoading, error } = useUserProfile();
+  const updateProfile = useUpdateProfile();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState(currentProfile);
+  const [editedData, setEditedData] = useState<any>(null);
 
+  // profileData가 로드되면 editedData 초기화
   useEffect(() => {
-    if (user?.id) {
-      const profile = getProfileById(user.id);
-      if (profile) {
-        setCurrentProfile(profile);
-        setEditedData(profile);
-      } else {
-        // 기본 프로필 생성
-        const defaultProfile = {
-          id: user.id,
-          name: user.email?.split('@')[0] || '사용자',
-          email: user.email || '',
-          phone: '010-0000-0000',
-          birthDate: '1990-01-01',
-          gender: 'male' as const,
-          address: {
-            zipCode: '00000',
-            address: '주소를 입력해주세요',
-            detailAddress: '',
-          },
-          preferences: {
-            newsletter: true,
-            smsMarketing: false,
-            pushNotifications: true,
-          },
-        };
-        setCurrentProfile(defaultProfile);
-        setEditedData(defaultProfile);
-      }
+    if (profileData) {
+      setEditedData({
+        phone: profileData.phone || '',
+        display_name: profileData.user_profiles?.display_name || '',
+        first_name: profileData.user_profiles?.first_name || '',
+        last_name: profileData.user_profiles?.last_name || '',
+        birth_date: profileData.user_profiles?.birth_date || '',
+        gender: profileData.user_profiles?.gender || 'male',
+        bio: profileData.user_profiles?.bio || '',
+        newsletter_subscribed:
+          profileData.user_profiles?.newsletter_subscribed || false,
+        sms_marketing_agreed:
+          profileData.user_profiles?.sms_marketing_agreed || false,
+        push_notifications_enabled:
+          profileData.user_profiles?.push_notifications_enabled || true,
+      });
     }
-  }, [user, getProfileById, setCurrentProfile]);
+  }, [profileData]);
 
-  const handleSave = () => {
-    if (editedData && user?.id) {
-      updateProfile(user.id, editedData);
+  const handleSave = async () => {
+    if (!editedData || !user?.id) return;
+
+    try {
+      // 프로필 업데이트
+      await updateProfile.mutateAsync(editedData);
+
+      // 성공 토스트
+      toast.success('프로필이 성공적으로 수정되었습니다!');
+
+      // 편집 모드 종료
       setIsEditing(false);
+    } catch (err: any) {
+      console.error('프로필 수정 실패:', err);
+      toast.error(err.message || '프로필 수정 중 오류가 발생했습니다.');
     }
   };
 
   const handleCancel = () => {
-    setEditedData(currentProfile);
+    if (profileData) {
+      setEditedData({
+        phone: profileData.phone || '',
+        display_name: profileData.user_profiles?.display_name || '',
+        first_name: profileData.user_profiles?.first_name || '',
+        last_name: profileData.user_profiles?.last_name || '',
+        birth_date: profileData.user_profiles?.birth_date || '',
+        gender: profileData.user_profiles?.gender || 'male',
+        bio: profileData.user_profiles?.bio || '',
+        newsletter_subscribed:
+          profileData.user_profiles?.newsletter_subscribed || false,
+        sms_marketing_agreed:
+          profileData.user_profiles?.sms_marketing_agreed || false,
+        push_notifications_enabled:
+          profileData.user_profiles?.push_notifications_enabled || true,
+      });
+    }
     setIsEditing(false);
   };
 
   const handleInputChange = (field: string, value: any) => {
-    setEditedData((prev) => (prev ? { ...prev, [field]: value } : null));
+    setEditedData((prev: any) => (prev ? { ...prev, [field]: value } : null));
   };
 
-  const handleAddressChange = (field: string, value: string) => {
-    setEditedData((prev) =>
-      prev
-        ? {
-            ...prev,
-            address: { ...prev.address, [field]: value },
-          }
-        : null
-    );
-  };
-
-  const handlePreferencesChange = (field: string, value: boolean) => {
-    setEditedData((prev) =>
-      prev
-        ? {
-            ...prev,
-            preferences: { ...prev.preferences, [field]: value },
-          }
-        : null
-    );
-  };
-
-  const recentActivities = [
-    {
-      type: 'order',
-      content: '나스티 망고 아이스 외 2개 주문',
-      date: '2024-09-01',
-      icon: <Package className='h-4 w-4' />,
-    },
-    {
-      type: 'review',
-      content: '코스모스 블루베리 리뷰 작성',
-      date: '2024-08-28',
-      icon: <Award className='h-4 w-4' />,
-    },
-    {
-      type: 'community',
-      content: '커뮤니티 게시글 작성',
-      date: '2024-08-25',
-      icon: <MessageSquare className='h-4 w-4' />,
-    },
-  ];
-
-  if (loading) {
+  // 로딩 상태
+  if (authLoading || isLoading) {
     return <LoadingPage />;
   }
 
-  if (!currentProfile || !editedData) {
+  // 에러 상태
+  if (error) {
+    return (
+      <div className='min-h-screen bg-background'>
+        <Header />
+        <main className='container mx-auto px-4 py-8'>
+          <div className='text-center'>
+            <p className='text-red-500'>
+              프로필을 불러오는 중 오류가 발생했습니다.
+            </p>
+            <p className='text-muted-foreground'>{error.message}</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // 데이터 없음
+  if (!profileData || !editedData) {
     return <LoadingPage />;
   }
 
@@ -153,11 +141,9 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <h1 className='text-2xl font-bold text-foreground'>
-                      {currentProfile.name}
+                      {profileData.user_profiles?.display_name || '사용자'}
                     </h1>
-                    <p className='text-muted-foreground'>
-                      {currentProfile.email}
-                    </p>
+                    <p className='text-muted-foreground'>{profileData.email}</p>
                   </div>
                 </div>
 
@@ -174,14 +160,20 @@ export default function ProfilePage() {
                     <>
                       <button
                         onClick={handleSave}
-                        className='flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600'
+                        disabled={updateProfile.isPending}
+                        className={`flex items-center px-4 py-2 text-white rounded-lg ${
+                          updateProfile.isPending
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-green-500 hover:bg-green-600'
+                        }`}
                       >
                         <Save className='w-4 h-4 mr-2' />
-                        저장
+                        {updateProfile.isPending ? '저장 중...' : '저장'}
                       </button>
                       <button
                         onClick={handleCancel}
-                        className='flex items-center px-4 py-2 bg-gray-300 text-foreground rounded-lg hover:bg-gray-400'
+                        disabled={updateProfile.isPending}
+                        className='flex items-center px-4 py-2 bg-gray-300 text-foreground rounded-lg hover:bg-gray-400 disabled:opacity-50'
                       >
                         <X className='w-4 h-4 mr-2' />
                         취소
@@ -192,273 +184,247 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-              {/* 기본 정보 */}
-              <div className='lg:col-span-2 bg-card rounded-lg shadow-sm p-6'>
-                <h2 className='text-lg font-semibold mb-4 flex items-center'>
-                  <User className='w-5 h-5 mr-2' />
-                  기본 정보
-                </h2>
+            {/* 기본 정보 */}
+            <div className='bg-card rounded-lg shadow-sm p-6'>
+              <h2 className='text-lg font-semibold mb-4 flex items-center'>
+                <User className='w-5 h-5 mr-2' />
+                기본 정보
+              </h2>
 
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  <div>
-                    <label className='block text-sm font-medium text-foreground mb-1'>
-                      이름
-                    </label>
-                    {isEditing ? (
-                      <input
-                        type='text'
-                        value={editedData.name}
-                        onChange={(e) =>
-                          handleInputChange('name', e.target.value)
-                        }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
-                      />
-                    ) : (
-                      <p className='text-foreground'>{currentProfile.name}</p>
-                    )}
-                  </div>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                {/* 표시 이름 */}
+                <div>
+                  <label className='block text-sm font-medium text-foreground mb-1'>
+                    표시 이름
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type='text'
+                      value={editedData.display_name}
+                      onChange={(e) =>
+                        handleInputChange('display_name', e.target.value)
+                      }
+                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
+                    />
+                  ) : (
+                    <p className='text-foreground py-2'>
+                      {profileData.user_profiles?.display_name || '-'}
+                    </p>
+                  )}
+                </div>
 
-                  <div>
-                    <label className='block text-sm font-medium text-foreground mb-1'>
-                      이메일
-                    </label>
-                    <div className='flex items-center'>
-                      <Mail className='w-4 h-4 text-muted-foreground mr-2' />
-                      <p className='text-foreground'>{currentProfile.email}</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className='block text-sm font-medium text-foreground mb-1'>
-                      전화번호
-                    </label>
-                    {isEditing ? (
-                      <input
-                        type='tel'
-                        value={editedData.phone}
-                        onChange={(e) =>
-                          handleInputChange('phone', e.target.value)
-                        }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
-                      />
-                    ) : (
-                      <div className='flex items-center'>
-                        <Phone className='w-4 h-4 text-muted-foreground mr-2' />
-                        <p className='text-foreground'>
-                          {currentProfile.phone}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className='block text-sm font-medium text-foreground mb-1'>
-                      생년월일
-                    </label>
-                    {isEditing ? (
-                      <input
-                        type='date'
-                        value={editedData.birthDate}
-                        onChange={(e) =>
-                          handleInputChange('birthDate', e.target.value)
-                        }
-                        className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
-                      />
-                    ) : (
-                      <div className='flex items-center'>
-                        <Calendar className='w-4 h-4 text-muted-foreground mr-2' />
-                        <p className='text-foreground'>
-                          {currentProfile.birthDate}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className='md:col-span-2'>
-                    <label className='block text-sm font-medium text-foreground mb-1'>
-                      주소
-                    </label>
-                    {isEditing ? (
-                      <div className='space-y-2'>
-                        <input
-                          type='text'
-                          placeholder='우편번호'
-                          value={editedData.address.zipCode}
-                          onChange={(e) =>
-                            handleAddressChange('zipCode', e.target.value)
-                          }
-                          className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
-                        />
-                        <input
-                          type='text'
-                          placeholder='기본 주소'
-                          value={editedData.address.address}
-                          onChange={(e) =>
-                            handleAddressChange('address', e.target.value)
-                          }
-                          className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
-                        />
-                        <input
-                          type='text'
-                          placeholder='상세 주소'
-                          value={editedData.address.detailAddress}
-                          onChange={(e) =>
-                            handleAddressChange('detailAddress', e.target.value)
-                          }
-                          className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
-                        />
-                      </div>
-                    ) : (
-                      <div className='flex items-start'>
-                        <MapPin className='w-4 h-4 text-muted-foreground mr-2 mt-1' />
-                        <div>
-                          <p className='text-foreground'>
-                            ({currentProfile.address.zipCode}){' '}
-                            {currentProfile.address.address}
-                          </p>
-                          {currentProfile.address.detailAddress && (
-                            <p className='text-foreground'>
-                              {currentProfile.address.detailAddress}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                {/* 이메일 (읽기 전용) */}
+                <div>
+                  <label className='block text-sm font-medium text-foreground mb-1'>
+                    이메일
+                  </label>
+                  <div className='flex items-center py-2'>
+                    <Mail className='w-4 h-4 text-muted-foreground mr-2' />
+                    <p className='text-foreground'>{profileData.email}</p>
                   </div>
                 </div>
 
-                {/* 알림 설정 */}
-                <div className='mt-8'>
-                  <h3 className='text-md font-semibold mb-4 flex items-center'>
-                    <Bell className='w-5 h-5 mr-2' />
-                    알림 설정
-                  </h3>
+                {/* 성 */}
+                <div>
+                  <label className='block text-sm font-medium text-foreground mb-1'>
+                    성
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type='text'
+                      value={editedData.last_name}
+                      onChange={(e) =>
+                        handleInputChange('last_name', e.target.value)
+                      }
+                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
+                    />
+                  ) : (
+                    <p className='text-foreground py-2'>
+                      {profileData.user_profiles?.last_name || '-'}
+                    </p>
+                  )}
+                </div>
 
-                  <div className='space-y-3'>
-                    <label className='flex items-center'>
-                      <input
-                        type='checkbox'
-                        checked={
-                          isEditing
-                            ? editedData.preferences.newsletter
-                            : currentProfile.preferences.newsletter
-                        }
-                        onChange={(e) =>
-                          isEditing &&
-                          handlePreferencesChange(
-                            'newsletter',
-                            e.target.checked
-                          )
-                        }
-                        disabled={!isEditing}
-                        className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
-                      />
-                      <span className='ml-2 text-sm text-foreground'>
-                        이메일 뉴스레터
-                      </span>
-                    </label>
+                {/* 이름 */}
+                <div>
+                  <label className='block text-sm font-medium text-foreground mb-1'>
+                    이름
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type='text'
+                      value={editedData.first_name}
+                      onChange={(e) =>
+                        handleInputChange('first_name', e.target.value)
+                      }
+                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
+                    />
+                  ) : (
+                    <p className='text-foreground py-2'>
+                      {profileData.user_profiles?.first_name || '-'}
+                    </p>
+                  )}
+                </div>
 
-                    <label className='flex items-center'>
-                      <input
-                        type='checkbox'
-                        checked={
-                          isEditing
-                            ? editedData.preferences.smsMarketing
-                            : currentProfile.preferences.smsMarketing
-                        }
-                        onChange={(e) =>
-                          isEditing &&
-                          handlePreferencesChange(
-                            'smsMarketing',
-                            e.target.checked
-                          )
-                        }
-                        disabled={!isEditing}
-                        className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
-                      />
-                      <span className='ml-2 text-sm text-foreground'>
-                        SMS 마케팅
-                      </span>
-                    </label>
+                {/* 전화번호 */}
+                <div>
+                  <label className='block text-sm font-medium text-foreground mb-1'>
+                    전화번호
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type='tel'
+                      value={editedData.phone}
+                      onChange={(e) =>
+                        handleInputChange('phone', e.target.value)
+                      }
+                      placeholder='010-0000-0000'
+                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
+                    />
+                  ) : (
+                    <div className='flex items-center py-2'>
+                      <Phone className='w-4 h-4 text-muted-foreground mr-2' />
+                      <p className='text-foreground'>
+                        {profileData.phone || '-'}
+                      </p>
+                    </div>
+                  )}
+                </div>
 
-                    <label className='flex items-center'>
-                      <input
-                        type='checkbox'
-                        checked={
-                          isEditing
-                            ? editedData.preferences.pushNotifications
-                            : currentProfile.preferences.pushNotifications
-                        }
-                        onChange={(e) =>
-                          isEditing &&
-                          handlePreferencesChange(
-                            'pushNotifications',
-                            e.target.checked
-                          )
-                        }
-                        disabled={!isEditing}
-                        className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
-                      />
-                      <span className='ml-2 text-sm text-foreground'>
-                        푸시 알림
-                      </span>
-                    </label>
-                  </div>
+                {/* 생년월일 */}
+                <div>
+                  <label className='block text-sm font-medium text-foreground mb-1'>
+                    생년월일
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type='date'
+                      value={editedData.birth_date}
+                      onChange={(e) =>
+                        handleInputChange('birth_date', e.target.value)
+                      }
+                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
+                    />
+                  ) : (
+                    <div className='flex items-center py-2'>
+                      <Calendar className='w-4 h-4 text-muted-foreground mr-2' />
+                      <p className='text-foreground'>
+                        {profileData.user_profiles?.birth_date || '-'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 성별 */}
+                <div>
+                  <label className='block text-sm font-medium text-foreground mb-1'>
+                    성별
+                  </label>
+                  {isEditing ? (
+                    <select
+                      value={editedData.gender}
+                      onChange={(e) =>
+                        handleInputChange('gender', e.target.value)
+                      }
+                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
+                    >
+                      <option value='male'>남성</option>
+                      <option value='female'>여성</option>
+                      <option value='other'>기타</option>
+                    </select>
+                  ) : (
+                    <p className='text-foreground py-2'>
+                      {profileData.user_profiles?.gender === 'male'
+                        ? '남성'
+                        : profileData.user_profiles?.gender === 'female'
+                        ? '여성'
+                        : '기타'}
+                    </p>
+                  )}
+                </div>
+
+                {/* 자기소개 */}
+                <div className='md:col-span-2'>
+                  <label className='block text-sm font-medium text-foreground mb-1'>
+                    자기소개
+                  </label>
+                  {isEditing ? (
+                    <textarea
+                      value={editedData.bio}
+                      onChange={(e) => handleInputChange('bio', e.target.value)}
+                      rows={3}
+                      className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
+                      placeholder='자기소개를 입력하세요'
+                    />
+                  ) : (
+                    <p className='text-foreground py-2'>
+                      {profileData.user_profiles?.bio || '-'}
+                    </p>
+                  )}
                 </div>
               </div>
 
-              {/* 최근 활동 */}
-              <div className='bg-card rounded-lg shadow-sm p-6'>
-                <h2 className='text-lg font-semibold mb-4 flex items-center'>
-                  <Settings className='w-5 h-5 mr-2' />
-                  최근 활동
-                </h2>
+              {/* 알림 설정 */}
+              <div className='mt-8 pt-6 border-t border-gray-200'>
+                <h3 className='text-md font-semibold mb-4 flex items-center'>
+                  <Bell className='w-5 h-5 mr-2' />
+                  알림 설정
+                </h3>
 
-                <div className='space-y-4'>
-                  {recentActivities.map((activity, index) => (
-                    <div key={index} className='flex items-start space-x-3'>
-                      <div className='flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center'>
-                        <div className='text-green-600'>{activity.icon}</div>
-                      </div>
-                      <div className='flex-1 min-w-0'>
-                        <p className='text-sm font-medium text-foreground'>
-                          {activity.content}
-                        </p>
-                        <p className='text-xs text-muted-foreground'>
-                          {activity.date}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <div className='space-y-3'>
+                  <label className='flex items-center'>
+                    <input
+                      type='checkbox'
+                      checked={editedData.newsletter_subscribed}
+                      onChange={(e) =>
+                        handleInputChange(
+                          'newsletter_subscribed',
+                          e.target.checked
+                        )
+                      }
+                      disabled={!isEditing}
+                      className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                    />
+                    <span className='ml-2 text-sm text-foreground'>
+                      이메일 뉴스레터
+                    </span>
+                  </label>
 
-                {/* 보안 설정 */}
-                <div className='mt-8 pt-6 border-t border-gray-200'>
-                  <h3 className='text-md font-semibold mb-4 flex items-center'>
-                    <Shield className='w-5 h-5 mr-2' />
-                    보안 설정
-                  </h3>
+                  <label className='flex items-center'>
+                    <input
+                      type='checkbox'
+                      checked={editedData.sms_marketing_agreed}
+                      onChange={(e) =>
+                        handleInputChange(
+                          'sms_marketing_agreed',
+                          e.target.checked
+                        )
+                      }
+                      disabled={!isEditing}
+                      className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                    />
+                    <span className='ml-2 text-sm text-foreground'>
+                      SMS 마케팅
+                    </span>
+                  </label>
 
-                  <div className='space-y-3'>
-                    <button className='w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-background'>
-                      <div className='text-sm font-medium text-foreground'>
-                        비밀번호 변경
-                      </div>
-                      <div className='text-xs text-muted-foreground'>
-                        계정 보안을 위해 정기적으로 변경해주세요
-                      </div>
-                    </button>
-
-                    <button className='w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-background'>
-                      <div className='text-sm font-medium text-foreground'>
-                        2단계 인증
-                      </div>
-                      <div className='text-xs text-muted-foreground'>
-                        추가 보안 설정
-                      </div>
-                    </button>
-                  </div>
+                  <label className='flex items-center'>
+                    <input
+                      type='checkbox'
+                      checked={editedData.push_notifications_enabled}
+                      onChange={(e) =>
+                        handleInputChange(
+                          'push_notifications_enabled',
+                          e.target.checked
+                        )
+                      }
+                      disabled={!isEditing}
+                      className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                    />
+                    <span className='ml-2 text-sm text-foreground'>
+                      푸시 알림
+                    </span>
+                  </label>
                 </div>
               </div>
             </div>
