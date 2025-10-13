@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase';
 import {
@@ -12,6 +12,7 @@ import {
   bulkAddCartItems,
 } from '@/queries/cart';
 import { useCartStore } from '@/stores/useCartStore';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * Supabase와 연동된 장바구니 Hook
@@ -19,7 +20,8 @@ import { useCartStore } from '@/stores/useCartStore';
  * - 비로그인 사용자: LocalStorage 사용 (기존 useCartStore)
  */
 export function useCart() {
-  const session: any = null;
+  // 실제 로그인 상태 가져오기
+  const { user, loading: authLoading } = useAuth();
   const supabase = createClient();
   const queryClient = useQueryClient();
 
@@ -27,8 +29,8 @@ export function useCart() {
   const localCart = useCartStore();
 
   // 로그인 여부
-  const isLoggedIn = !!session?.user;
-  const userId = session?.user?.id;
+  const isLoggedIn = !!user;
+  const userId = user?.id;
 
   // Supabase 장바구니 조회 (로그인 시)
   const {
@@ -193,9 +195,10 @@ export function useCart() {
     }
   }, [isLoggedIn, userId, clearMutation, localCart]);
 
-  // 장바구니 아이템 목록 (DB 또는 LocalStorage)
-  const items = isLoggedIn
-    ? (dbCartItems || []).map((item: any) => ({
+  // 장바구니 아이템 목록 (DB 또는 LocalStorage) - 메모이제이션
+  const items = useMemo(() => {
+    if (isLoggedIn) {
+      return (dbCartItems || []).map((item: any) => ({
         id: item.id,
         productId: item.product_id,
         name: item.products?.name || '',
@@ -203,8 +206,11 @@ export function useCart() {
         price: item.products?.price || 0,
         image_url: item.products?.image_url || '',
         quantity: item.quantity,
-      }))
-    : localCart.items;
+      }));
+    } else {
+      return localCart.items;
+    }
+  }, [isLoggedIn, dbCartItems, localCart.items]);
 
   // 총 가격 계산
   const getTotalPrice = useCallback(() => {
@@ -227,7 +233,7 @@ export function useCart() {
     clearCart: clearCartItems,
     getTotalPrice,
     getTotalItems,
-    isLoading,
+    isLoading: authLoading || isLoading, // 인증 로딩 + 장바구니 로딩
     error,
   };
 }
