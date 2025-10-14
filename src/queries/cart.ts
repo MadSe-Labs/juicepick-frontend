@@ -94,24 +94,75 @@ export function clearCart(client: TypedSupabaseClient, userId: string) {
 
 /**
  * 여러 아이템을 한 번에 추가 (LocalStorage -> DB 마이그레이션용)
+ * DB 기존 상품 유지, 중복 상품은 수량 합산
  */
 export async function bulkAddCartItems(
   client: TypedSupabaseClient,
   userId: string,
   items: Array<{ product_id: string; quantity: number }>
 ) {
-  // 기존 장바구니 비우기
-  await clearCart(client, userId);
-
-  // 새로운 아이템들 추가
-  return client
+  // 1. DB 기존 장바구니 조회
+  const { data: existingItems, error: fetchError } = await client
     .from('cart_items')
-    .insert(
-      items.map((item) => ({
+    .select('*')
+    .eq('user_id', userId);
+
+  if (fetchError) throw fetchError;
+
+  // 2. 기존 상품 Map 생성 (product_id -> cart_item)
+  const existingMap = new Map(
+    (existingItems || []).map((item) => [item.product_id, item])
+  );
+
+  // 3. LocalStorage 상품 처리
+  const insertItems: Array<{ user_id: string; product_id: string; quantity: number }> = [];
+
+  for (const item of items) {
+    const existing = existingMap.get(item.product_id);
+
+    if (existing) {
+      // 중복 상품: 수량 합산 (update)
+      const { error: updateError } = await client
+        .from('cart_items')
+        .update({ quantity: existing.quantity + item.quantity })
+        .eq('id', existing.id);
+
+      if (updateError) throw updateError;
+    } else {
+      // 신규 상품: 추가 대기열에 추가
+      insertItems.push({
         user_id: userId,
         product_id: item.product_id,
         quantity: item.quantity,
-      }))
+      });
+    }
+  }
+
+  // 4. 신규 상품 추가
+  if (insertItems.length > 0) {
+    const { error: insertError } = await client
+      .from('cart_items')
+      .insert(insertItems);
+
+    if (insertError) throw insertError;
+  }
+
+  // 5. 최종 장바구니 조회하여 반환
+  return client
+    .from('cart_items')
+    .select(
+      `
+      *,
+      products (
+        id,
+        name,
+        brand,
+        price,
+        image_url,
+        in_stock
+      )
+    `
     )
-    .select();
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
 }

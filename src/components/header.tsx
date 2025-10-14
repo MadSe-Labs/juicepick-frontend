@@ -123,22 +123,19 @@ export default function Header() {
 
           {/* User Actions */}
           <div className='hidden md:flex items-center space-x-4'>
+            {/* 장바구니 */}
+            <Link
+              href='/cart'
+              className='text-gray-600 hover:text-green-500 transition-colors relative cursor-pointer'
+            >
+              <ShoppingCart className='h-5 w-5' />
+              <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center'>
+                {cartItems.length || 0}
+              </span>
+            </Link>
+
             {isAuthenticated ? (
               <>
-                {/* 테마 토글 */}
-                <ThemeToggle />
-
-                {/* 장바구니 */}
-                <Link
-                  href='/cart'
-                  className='text-gray-600 hover:text-green-500 transition-colors relative cursor-pointer'
-                >
-                  <ShoppingCart className='h-5 w-5' />
-                  <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center'>
-                    {cartItems.length || 0}
-                  </span>
-                </Link>
-
                 {/* 사용자 메뉴 */}
                 <div className='relative' ref={userMenuRef}>
                   <button
@@ -193,9 +190,6 @@ export default function Header() {
               </>
             ) : (
               <>
-                {/* 테마 토글 */}
-                <ThemeToggle />
-
                 <Link
                   href='/login'
                   className='flex items-center space-x-1 text-gray-600 hover:text-green-500 transition-colors'
@@ -211,6 +205,9 @@ export default function Header() {
                 </Link>
               </>
             )}
+
+            {/* 다크모드 테마 토글 */}
+            <ThemeToggle />
           </div>
 
           {/* Mobile Menu Button */}
