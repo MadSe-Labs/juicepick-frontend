@@ -1,3 +1,16 @@
 {
-  "recommendations": ["denoland.vscode-deno"]
+  "recommendations": [
+    // 필수 (프로젝트 기술 스택)
+    "dbaeumer.vscode-eslint", // ESLint - 코드 품질 체크
+    "bradlc.vscode-tailwindcss", // Tailwind CSS - 자동완성
+    "ms-vscode.vscode-typescript-next", // TypeScript 지원
+    "supabase.supabase-vscode", // Supabase 공식 확장
+
+    // 권장 (생산성)
+    "esbenp.prettier-vscode", // Prettier - 자동 포매팅
+    "eamodio.gitlens", // GitLens - Git 히스토리
+
+    // 선택 (AI 지원)
+    "GitHub.copilot" // GitHub Copilot (유료)
+  ]
 }

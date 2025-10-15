@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 // ✅ 경로 상수 분리
 const AUTH_PAGES = ['/login', '/signup'];
-const PROTECTED_PATHS = ['/profile', '/my-orders', '/cart'];
+const PROTECTED_PATHS = ['/profile', '/my-orders']; // ✅ /cart 제거 (비로그인 접근 허용)
 const MAIN_PAGE = '/main';
 
 // 경로 유틸

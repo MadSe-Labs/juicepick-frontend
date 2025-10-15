@@ -30,7 +30,6 @@ export default function LoginPage() {
       await signIn(email, password);
 
       // 로그인 성공 시 원래 가려던 페이지 또는 메인 페이지로 이동
-      console.log('✅ 로그인 성공!');
       router.push(from);
       router.refresh();
     } catch (err: any) {
