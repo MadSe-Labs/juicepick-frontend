@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, ShoppingCart } from 'lucide-react';
+import WishlistButton from './wishlist-button';
 
 interface ProductCardProps {
   product: {
@@ -51,6 +52,11 @@ export default function ProductCard({
             />
           </div>
         </Link>
+
+        {/* 찜하기 버튼 - 우측 상단 */}
+        <div className='absolute top-2 right-2 z-10'>
+          <WishlistButton productId={product.id} size='sm' />
+        </div>
       </div>
 
       <div className='p-4'>
