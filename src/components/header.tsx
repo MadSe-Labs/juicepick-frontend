@@ -11,6 +11,7 @@ import {
   LogOut,
   UserCircle,
   Search,
+  Heart,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useCart } from '@/hooks/useCart';
@@ -123,6 +124,15 @@ export default function Header() {
 
           {/* User Actions */}
           <div className='hidden md:flex items-center space-x-4'>
+            {/* 찜하기 */}
+            <Link
+              href='/wishlist'
+              className='text-gray-600 hover:text-green-500 transition-colors cursor-pointer'
+              title='찜 목록'
+            >
+              <Heart className='h-5 w-5' />
+            </Link>
+
             {/* 장바구니 */}
             <Link
               href='/cart'
@@ -280,6 +290,14 @@ export default function Header() {
                       <span>프로필</span>
                     </Link>
                     <Link
+                      href='/wishlist'
+                      className='flex items-center space-x-3 px-2 py-2 text-gray-600 hover:text-green-500 transition-colors'
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Heart className='h-5 w-5' />
+                      <span>찜 목록</span>
+                    </Link>
+                    <Link
                       href='/cart'
                       className='flex items-center space-x-3 px-2 py-2 text-gray-600 hover:text-green-500 transition-colors'
                       onClick={() => setIsMenuOpen(false)}
@@ -287,7 +305,7 @@ export default function Header() {
                       <ShoppingCart className='h-5 w-5' />
                       <span>장바구니</span>
                       <span className='bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center ml-auto'>
-                        4
+                        {cartItems.length || 0}
                       </span>
                     </Link>
                     <button

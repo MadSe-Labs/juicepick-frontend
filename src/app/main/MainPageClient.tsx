@@ -34,8 +34,11 @@ import SupabaseConnectionError from '@/components/supabase-connection-error';
 export default function MainPageClient() {
   const [searchQuery, setSearchQuery] = useState('');
   const [actualSearchQuery, setActualSearchQuery] = useState('');
-  const [displayCount, setDisplayCount] = useState(12);
+  const [displayCount, setDisplayCount] = useState(6); // ✅ 초기 6개로 변경
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [sortBy, setSortBy] = useState<
+    'latest' | 'popular' | 'price-low' | 'price-high' | 'rating'
+  >('latest'); // ✅ 정렬 상태 추가
   const router = useRouter();
 
   // 필터 상태
@@ -60,12 +63,14 @@ export default function MainPageClient() {
     setSelectedBrands((prev) =>
       checked ? [...prev, brand] : prev.filter((b) => b !== brand)
     );
+    setDisplayCount(6); // ✅ 필터 변경 시 초기화
   }, []);
 
   const handleFlavorChange = useCallback((flavor: string, checked: boolean) => {
     setSelectedFlavors((prev) =>
       checked ? [...prev, flavor] : prev.filter((f) => f !== flavor)
     );
+    setDisplayCount(6); // ✅ 필터 변경 시 초기화
   }, []);
 
   const handleNicotineChange = useCallback(
@@ -73,6 +78,7 @@ export default function MainPageClient() {
       setSelectedNicotine((prev) =>
         checked ? [...prev, nicotine] : prev.filter((n) => n !== nicotine)
       );
+      setDisplayCount(6); // ✅ 필터 변경 시 초기화
     },
     []
   );
@@ -80,16 +86,16 @@ export default function MainPageClient() {
   // 검색 실행 - useCallback으로 최적화
   const executeSearch = useCallback(() => {
     setActualSearchQuery(searchQuery);
-    setDisplayCount(12); // 검색 시 페이지네이션 초기화
+    setDisplayCount(6); // ✅ 검색 시 6개로 초기화
   }, [searchQuery]);
 
-  // ✅ Custom Hook을 사용한 선언형 필터링
+  // ✅ Custom Hook을 사용한 선언형 필터링 (sortBy 연결)
   const filteredProducts = useFilteredProducts(allProducts ?? [], {
     searchQuery: actualSearchQuery,
     brands: selectedBrands,
     flavors: selectedFlavors,
     nicotine: selectedNicotine,
-    sortBy: 'latest',
+    sortBy: sortBy, // ✅ 정렬 옵션 연결
   });
 
   // ✅ Custom Hook을 사용한 페이지네이션
@@ -109,9 +115,9 @@ export default function MainPageClient() {
 
   const handleLoadMore = useCallback(async () => {
     setIsLoadingMore(true);
-    // 로딩 시뮬레이션
+    // ✅ 로딩 시뮬레이션 (테스트용 1초 유지)
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    setDisplayCount((prev) => prev + 6);
+    setDisplayCount((prev) => prev + 6); // ✅ 6개씩 증가
     setIsLoadingMore(false);
   }, []);
 
@@ -427,12 +433,19 @@ export default function MainPageClient() {
 
                 <div className='flex items-center space-x-2'>
                   <Filter className='w-4 h-4 text-muted-foreground' />
-                  <select className='px-3 py-2 border border-gray-300 rounded-lg'>
-                    <option>인기순</option>
-                    <option>최신순</option>
-                    <option>낮은 가격순</option>
-                    <option>높은 가격순</option>
-                    <option>평점순</option>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => {
+                      setSortBy(e.target.value as typeof sortBy);
+                      setDisplayCount(6); // ✅ 정렬 변경 시 초기화
+                    }}
+                    className='px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent'
+                  >
+                    <option value='popular'>인기순</option>
+                    <option value='latest'>최신순</option>
+                    <option value='price-low'>낮은 가격순</option>
+                    <option value='price-high'>높은 가격순</option>
+                    <option value='rating'>평점순</option>
                   </select>
                 </div>
 
