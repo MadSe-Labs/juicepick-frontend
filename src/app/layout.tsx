@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import ThemeProvider from '@/providers/ThemeProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
-import { Toaster } from 'react-hot-toast';
+import CustomToaster from '@/components/CustomToaster';
 import './globals.css';
 
 const geistSans = Geist({
@@ -33,7 +33,7 @@ export default function RootLayout({
         <QueryProvider>
           <ThemeProvider>{children}</ThemeProvider>
         </QueryProvider>
-        <Toaster position='top-right' />
+        <CustomToaster />
       </body>
     </html>
   );
