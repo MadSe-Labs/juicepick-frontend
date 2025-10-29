@@ -18,6 +18,7 @@ import {
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import SidebarAd from '@/components/sidebar-ad';
+import AvatarUpload from '@/components/avatar-upload';
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
@@ -134,52 +135,65 @@ export default function ProfilePage() {
           <div className='flex-1 max-w-4xl'>
             {/* 프로필 헤더 */}
             <div className='bg-card rounded-lg shadow-sm p-6 mb-6'>
-              <div className='flex items-center justify-between mb-6'>
-                <div className='flex items-center space-x-4'>
-                  <div className='w-16 h-16 bg-green-100 rounded-full flex items-center justify-center'>
-                    <User className='w-8 h-8 text-green-600' />
-                  </div>
-                  <div>
+              <div className='flex flex-col md:flex-row items-center md:items-start gap-6 mb-6'>
+                {/* 아바타 업로드 */}
+                <div className='flex-shrink-0'>
+                  <AvatarUpload
+                    currentAvatarUrl={profileData.user_profiles?.avatar_url}
+                    userId={user?.id || ''}
+                    onUploadSuccess={async (newAvatarUrl) => {
+                      // DB 업데이트
+                      await updateProfile.mutateAsync({
+                        avatar_url: newAvatarUrl,
+                      });
+                    }}
+                    size={120}
+                  />
+                </div>
+
+                {/* 사용자 정보 및 편집 버튼 */}
+                <div className='flex-1 flex flex-col md:flex-row items-center md:items-start justify-between gap-4 w-full'>
+                  <div className='text-center md:text-left'>
                     <h1 className='text-2xl font-bold text-foreground'>
                       {profileData.user_profiles?.display_name || '사용자'}
                     </h1>
                     <p className='text-muted-foreground'>{profileData.email}</p>
                   </div>
-                </div>
 
-                <div className='flex space-x-2'>
-                  {!isEditing ? (
-                    <button
-                      onClick={() => setIsEditing(true)}
-                      className='flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600'
-                    >
-                      <Edit3 className='w-4 h-4 mr-2' />
-                      편집
-                    </button>
-                  ) : (
-                    <>
+                  <div className='flex space-x-2'>
+                    {!isEditing ? (
                       <button
-                        onClick={handleSave}
-                        disabled={updateProfile.isPending}
-                        className={`flex items-center px-4 py-2 text-white rounded-lg ${
-                          updateProfile.isPending
-                            ? 'bg-gray-400 cursor-not-allowed'
-                            : 'bg-green-500 hover:bg-green-600'
-                        }`}
+                        onClick={() => setIsEditing(true)}
+                        className='flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600'
                       >
-                        <Save className='w-4 h-4 mr-2' />
-                        {updateProfile.isPending ? '저장 중...' : '저장'}
+                        <Edit3 className='w-4 h-4 mr-2' />
+                        편집
                       </button>
-                      <button
-                        onClick={handleCancel}
-                        disabled={updateProfile.isPending}
-                        className='flex items-center px-4 py-2 bg-gray-300 text-foreground rounded-lg hover:bg-gray-400 disabled:opacity-50'
-                      >
-                        <X className='w-4 h-4 mr-2' />
-                        취소
-                      </button>
-                    </>
-                  )}
+                    ) : (
+                      <>
+                        <button
+                          onClick={handleSave}
+                          disabled={updateProfile.isPending}
+                          className={`flex items-center px-4 py-2 text-white rounded-lg ${
+                            updateProfile.isPending
+                              ? 'bg-gray-400 cursor-not-allowed'
+                              : 'bg-green-500 hover:bg-green-600'
+                          }`}
+                        >
+                          <Save className='w-4 h-4 mr-2' />
+                          {updateProfile.isPending ? '저장 중...' : '저장'}
+                        </button>
+                        <button
+                          onClick={handleCancel}
+                          disabled={updateProfile.isPending}
+                          className='flex items-center px-4 py-2 bg-gray-300 text-foreground rounded-lg hover:bg-gray-400 disabled:opacity-50'
+                        >
+                          <X className='w-4 h-4 mr-2' />
+                          취소
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

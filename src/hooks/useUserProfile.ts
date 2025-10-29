@@ -53,6 +53,7 @@ export function useUpdateProfile() {
       birth_date?: string;
       gender?: 'male' | 'female' | 'other';
       bio?: string;
+      avatar_url?: string;
       newsletter_subscribed?: boolean;
       sms_marketing_agreed?: boolean;
       push_notifications_enabled?: boolean;
