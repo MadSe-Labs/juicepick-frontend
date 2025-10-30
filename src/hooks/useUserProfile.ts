@@ -53,7 +53,7 @@ export function useUpdateProfile() {
       birth_date?: string;
       gender?: 'male' | 'female' | 'other';
       bio?: string;
-      avatar_url?: string;
+      avatar_url?: string | null; // null 허용 (삭제 시)
       newsletter_subscribed?: boolean;
       sms_marketing_agreed?: boolean;
       push_notifications_enabled?: boolean;

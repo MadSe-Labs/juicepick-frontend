@@ -2,8 +2,12 @@
 
 import { useState, useRef, ChangeEvent } from 'react';
 import Image from 'next/image';
-import { Camera, Upload, X, Loader2, User } from 'lucide-react';
-import { updateAvatar, validateImageFile } from '@/lib/avatar-upload';
+import { Camera, Upload, X, Loader2, User, Trash2 } from 'lucide-react';
+import {
+  updateAvatar,
+  validateImageFile,
+  deleteAvatar,
+} from '@/lib/avatar-upload';
 import toast from 'react-hot-toast';
 
 interface AvatarUploadProps {
@@ -24,6 +28,11 @@ interface AvatarUploadProps {
   onUploadSuccess: (newAvatarUrl: string) => void;
 
   /**
+   * 아바타 삭제(초기화) 성공 시 콜백
+   */
+  onDeleteSuccess?: () => void;
+
+  /**
    * 업로드 실패 시 콜백
    */
   onUploadError?: (error: Error) => void;
@@ -41,6 +50,7 @@ interface AvatarUploadProps {
  * - 현재 아바타 미리보기
  * - 클릭하여 파일 선택
  * - 드래그 앤 드롭 지원
+ * - 아바타 초기화 (삭제)
  * - 로딩 상태 표시
  * - 파일 검증 (크기, 타입)
  */
@@ -48,10 +58,12 @@ export default function AvatarUpload({
   currentAvatarUrl,
   userId,
   onUploadSuccess,
+  onDeleteSuccess,
   onUploadError,
   size = 120,
 }: AvatarUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -126,10 +138,44 @@ export default function AvatarUpload({
   };
 
   /**
+   * 아바타 삭제(초기화) 핸들러
+   */
+  const handleDelete = async () => {
+    if (!currentAvatarUrl) {
+      toast.error('삭제할 프로필 사진이 없습니다.');
+      return;
+    }
+
+    // 확인 다이얼로그
+    if (!confirm('프로필 사진을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    setDeleting(true);
+
+    try {
+      // Storage에서 파일 삭제
+      await deleteAvatar(currentAvatarUrl);
+
+      // 삭제 성공 콜백
+      if (onDeleteSuccess) {
+        onDeleteSuccess();
+      }
+
+      toast.success('프로필 사진이 삭제되었습니다.');
+    } catch (error: any) {
+      console.error('❌ 아바타 삭제 실패:', error);
+      toast.error(error.message || '삭제 중 오류가 발생했습니다.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  /**
    * 업로드 버튼 클릭 핸들러
    */
   const handleClick = () => {
-    if (uploading) return;
+    if (uploading || deleting) return;
     fileInputRef.current?.click();
   };
 
@@ -159,7 +205,7 @@ export default function AvatarUpload({
     e.stopPropagation();
     setDragActive(false);
 
-    if (uploading) return;
+    if (uploading || deleting) return;
 
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
@@ -188,7 +234,7 @@ export default function AvatarUpload({
           dragActive
             ? 'border-green-500 bg-green-50'
             : 'border-gray-200 hover:border-green-400'
-        } ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+        } ${uploading || deleting ? 'opacity-50 cursor-not-allowed' : ''}`}
         style={{ width: size, height: size }}
         onClick={handleClick}
         onDragOver={handleDragOver}
@@ -211,29 +257,36 @@ export default function AvatarUpload({
           </div>
         )}
 
-        {/* 로딩 오버레이 */}
+        {/* 업로드 로딩 오버레이 */}
         {uploading && (
           <div className='absolute inset-0 bg-black/50 flex items-center justify-center'>
             <Loader2 className='w-8 h-8 text-white animate-spin' />
           </div>
         )}
 
+        {/* 삭제 로딩 오버레이 */}
+        {deleting && (
+          <div className='absolute inset-0 bg-black/50 flex items-center justify-center'>
+            <Loader2 className='w-8 h-8 text-white animate-spin' />
+          </div>
+        )}
+
         {/* 호버 오버레이 */}
-        {!uploading && (
+        {!uploading && !deleting && (
           <div className='absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center'>
             <Camera className='w-8 h-8 text-white' />
           </div>
         )}
 
         {/* 드래그 오버레이 */}
-        {dragActive && !uploading && (
+        {dragActive && !uploading && !deleting && (
           <div className='absolute inset-0 bg-green-500/20 flex items-center justify-center'>
             <Upload className='w-8 h-8 text-green-600' />
           </div>
         )}
 
         {/* 미리보기 취소 버튼 */}
-        {previewUrl && !uploading && (
+        {previewUrl && !uploading && !deleting && (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -254,22 +307,42 @@ export default function AvatarUpload({
         accept='image/jpeg,image/jpg,image/png,image/webp'
         onChange={handleFileChange}
         className='hidden'
-        disabled={uploading}
+        disabled={uploading || deleting}
       />
 
-      {/* 안내 텍스트 */}
+      {/* 안내 텍스트 및 버튼 */}
       <div className='mt-3 text-center'>
-        <button
-          onClick={handleClick}
-          disabled={uploading}
-          className={`text-sm font-medium transition-colors ${
-            uploading
-              ? 'text-gray-400 cursor-not-allowed'
-              : 'text-green-600 hover:text-green-700'
-          }`}
-        >
-          {uploading ? '업로드 중...' : '사진 변경'}
-        </button>
+        <div className='flex items-center justify-center gap-3'>
+          <button
+            onClick={handleClick}
+            disabled={uploading || deleting}
+            className={`text-sm font-medium transition-colors ${
+              uploading || deleting
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'text-green-600 hover:text-green-700'
+            }`}
+          >
+            {uploading ? '업로드 중...' : '사진 변경'}
+          </button>
+
+          {/* 구분선 및 삭제 버튼 (아바타가 있을 때만 표시) */}
+          {currentAvatarUrl && (
+            <>
+              <span className='text-gray-300'>|</span>
+              <button
+                onClick={handleDelete}
+                disabled={uploading || deleting}
+                className={`text-sm font-medium transition-colors ${
+                  uploading || deleting
+                    ? 'text-gray-400 cursor-not-allowed'
+                    : 'text-red-600 hover:text-red-700'
+                }`}
+              >
+                {deleting ? '삭제 중...' : '사진 삭제'}
+              </button>
+            </>
+          )}
+        </div>
         <p className='text-xs text-gray-500 mt-1'>JPG, PNG, WEBP (최대 5MB)</p>
       </div>
     </div>

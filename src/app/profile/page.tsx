@@ -147,6 +147,12 @@ export default function ProfilePage() {
                         avatar_url: newAvatarUrl,
                       });
                     }}
+                    onDeleteSuccess={async () => {
+                      // DB에서 avatar_url을 null로 업데이트
+                      await updateProfile.mutateAsync({
+                        avatar_url: null,
+                      });
+                    }}
                     size={120}
                   />
                 </div>
