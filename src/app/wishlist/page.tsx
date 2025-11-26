@@ -17,7 +17,7 @@ import {
   TrendingUp,
   ArrowRight,
 } from 'lucide-react';
-import { useCartStore } from '@/stores/useCartStore';
+import { useCart } from '@/hooks/useCart';
 import toast from 'react-hot-toast';
 
 export default function WishlistPage() {
@@ -25,7 +25,7 @@ export default function WishlistPage() {
   const { user, loading: authLoading } = useAuth();
   const { wishlistItems, stats, isLoading, removeFromWishlist, clearWishlist } =
     useWishlist();
-  const { addItem } = useCartStore();
+  const { addItem } = useCart(); // ✅ useCartStore → useCart 변경
 
   // 로그인 체크
   useEffect(() => {
